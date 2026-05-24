@@ -81,8 +81,8 @@ export default function App() {
         const loadedPhotos: GalleryItem[] = imageFiles.map((file, idx) => {
           const isUpl = file.name.includes('_') && !isNaN(Number(file.name.split('_').pop()?.split('.')[0] || ''));
           const descriptionPT = isUpl
-            ? "Fotografia de expedição real importada automaticamente do Supabase Storage."
-            : `Arquivo '${file.name}' localizado e carregado do seu bucket Supabase.`;
+            ? "Fotografia de expedição real."
+          
           
           return {
             id: `supabase_${file.name}_${idx}`,
@@ -93,14 +93,14 @@ export default function App() {
             },
             description: {
               BR: descriptionPT,
-              EN: `Real-time physical photo retrieved automatically from your bucket '${supabaseBucketName}'.`,
-              ES: `Foto real recuperada dinámicamente desde su contenedor '${supabaseBucketName}'.`
+              EN: `Real-time physical photo '${supabaseBucketName}'.`,
+              ES: `Foto real '${supabaseBucketName}'.`
             },
             imageUrl: file.publicUrl,
             operation: 44, // Default to newest Operation for these custom photos
             subcategory: "Paisagens",
-            tags: ["Supabase", "Sincronizado", "Acervo Real"],
-            photographer: "Supabase Explorer",
+            tags: ["Sincronizado", "Acervo Real"],
+        
             year: 2026,
             location: {
               BR: "Estação Comandante Ferraz",
@@ -121,8 +121,8 @@ export default function App() {
           const count = loadedPhotos.length;
           setSyncMessage(
             language === 'BR' 
-              ? `✓ Sincronizado! ${count} imagens reais importadas do seu bucket do Supabase.` 
-              : `✓ Synced! ${count} real images imported from your Supabase bucket.`
+              ? `✓ Sincronizado! ${count} imagens reais .` 
+              : `✓ Synced! ${count} real images .`
           );
           setTimeout(() => setSyncMessage(null), 5000);
         }

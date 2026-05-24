@@ -130,7 +130,98 @@ export async function fetchImagesFromSupabaseBucket(bucket = 'photos', folder = 
         };
       });
   } catch (error) {
-    console.error('Error listing assets from Supabase Storage:', error);
+    console.warn('Error listing assets from Supabase Storage:', error);
+    return [];
+  }
+}
+
+// Track logged listing errors to prevent continuous console spamming during background intervals
+let lastLoggedListErrorTime = 0;
+const ERROR_LOG_COOLDOWN_MS = 120000; // Log the detailed listing warning once every 2 minutes max
+
+/**
+ * Help list all files in a Supabase Storage bucket recursively.
+ */
+export async function fetchImagesFromSupabaseBucketRecursive(
+  bucket = 'photos',
+  currentPath = ''
+): Promise<Array<{ name: string; fullPath: string; publicUrl: string; created_at: string; metadata: any }>> {
+  try {
+    // Elegant retry flow to handle temporary HTTP 501/502/503 or API gateway timeouts
+    let data: any[] | null = null;
+    let errorToThrow: any = null;
+    const maxAttempts = 3;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const { data: listData, error: listError } = await supabase.storage
+          .from(bucket)
+          .list(currentPath, {
+            limit: 100,
+            offset: 0,
+            sortBy: { column: 'name', order: 'asc' }
+          });
+
+        if (listError) {
+          throw listError;
+        }
+        data = listData;
+        errorToThrow = null;
+        break; // Success, exit retry loop
+      } catch (err: any) {
+        errorToThrow = err;
+        const isRetryable = err?.message?.includes('502') || err?.message?.includes('503') || err?.message?.includes('504') || err?.status === 502 || err?.status === 503 || err?.status === 504;
+        
+        if (isRetryable && attempt < maxAttempts) {
+          const delay = attempt * 600;
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          break; // Not retryable or final attempt reached
+        }
+      }
+    }
+
+    if (errorToThrow) {
+      throw errorToThrow;
+    }
+
+    if (!data) return [];
+
+    let results: Array<{ name: string; fullPath: string; publicUrl: string; created_at: string; metadata: any }> = [];
+
+    for (const item of data) {
+      if (item.name === '.emptyFolderPlaceholder') continue;
+      
+      const itemPath = currentPath ? `${currentPath}/${item.name}` : item.name;
+
+      if (!item.id) {
+        // It is a directory, recurse into it
+        const folderResults = await fetchImagesFromSupabaseBucketRecursive(bucket, itemPath);
+        results = [...results, ...folderResults];
+      } else {
+        // It is a file, get public URL
+        const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(itemPath);
+        results.push({
+          name: item.name,
+          fullPath: itemPath,
+          publicUrl: urlData.publicUrl,
+          created_at: item.created_at || '',
+          metadata: item.metadata || null
+        });
+      }
+    }
+
+    return results;
+  } catch (error: any) {
+    const now = Date.now();
+    if (now - lastLoggedListErrorTime > ERROR_LOG_COOLDOWN_MS) {
+      console.warn(
+        `[Supabase Sync Tracker] Unable to do recursive listing on bucket "${bucket}" at path "${currentPath || 'root'}". ` +
+        `Error: ${error?.message || error}. This is usually expected if the bucket is empty, does not exist, or public access is unconfigured. ` +
+        `Sincronização continuará tentando de forma silenciosa em segundo plano.`
+      );
+      lastLoggedListErrorTime = now;
+    }
     return [];
   }
 }

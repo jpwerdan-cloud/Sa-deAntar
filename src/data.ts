@@ -9,7 +9,7 @@ export const TRANSLATIONS = {
     highlights: "Destaques",
     scientificProjects: "Projetos Científicos",
     interviewsTitle: "Entrevistas & Depoimentos",
-    moviesTitle: "Filmes & Documentários",
+    moviesTitle: "Lives",
     visualMemories: "Memórias Visuais",
     viewAll: "Ver Tudo",
     currentLocation: "Localização de Pesquisa",
@@ -68,7 +68,7 @@ export const TRANSLATIONS = {
     navAbout: "Projeto",
     navOps: "Operações",
     navGallery: "Galeria",
-    navVideos: "Filmes",
+    navVideos: "Lives",
     navPubs: "Artigos",
     navInterviews: "Entrevistas",
     navBlog: "Diário",
@@ -84,7 +84,7 @@ export const TRANSLATIONS = {
     highlights: "Highlights",
     scientificProjects: "Scientific Endeavors",
     interviewsTitle: "Interviews & Testimonials",
-    moviesTitle: "Films & Documentaries",
+    moviesTitle: "Lives",
     visualMemories: "Visual Ledger",
     viewAll: "View All",
     currentLocation: "Research Spot",
@@ -143,7 +143,7 @@ export const TRANSLATIONS = {
     navAbout: "About",
     navOps: "Operations",
     navGallery: "Gallery",
-    navVideos: "Films",
+    navVideos: "Lives",
     navPubs: "Papers",
     navInterviews: "Interviews",
     navBlog: "Journal",
@@ -159,7 +159,7 @@ export const TRANSLATIONS = {
     highlights: "Destacados",
     scientificProjects: "Proyectos Científicos",
     interviewsTitle: "Entrevistas & Testimonios",
-    moviesTitle: "Películas & Documentales",
+    moviesTitle: "Lives",
     visualMemories: "Archivo Visual",
     viewAll: "Ver Todo",
     currentLocation: "Punto de Investigación",
@@ -218,7 +218,7 @@ export const TRANSLATIONS = {
     navAbout: "Proyecto",
     navOps: "Operaciones",
     navGallery: "Galería",
-    navVideos: "Películas",
+    navVideos: "Lives",
     navPubs: "Artículos",
     navInterviews: "Entrevistas",
     navBlog: "Diarios",
@@ -228,203 +228,83 @@ export const TRANSLATIONS = {
   }
 };
 
-export const GALLERY_ITEMS: GalleryItem[] = [
-  {
-    id: 'ph1',
-    title: {
-      BR: "Silêncio Gélido em Comandante Ferraz",
-      EN: "Glacial Silence at Comandante Ferraz",
-      ES: "Silencio Glacial en Comandante Ferraz"
-    },
-    description: {
-      BR: "A majestade silenciosa da Baía do Almirantado cobrindo as estruturas modulares de pesquisa antártica.",
-      EN: "The silent majesty of Admiralty Bay framing the modular structures of the Antarctic research hub.",
-      ES: "La majestad silenciosa de la Bahía Almirantazgo rodeando el módulo de investigación científica."
-    },
-    imageUrl: "https://images.unsplash.com/photo-1516055619834-586f8c75d1de?q=80&w=1200",
-    operation: 42,
-    subcategory: "EACF",
-    tags: ["EACF", "gelo", "isolamento", "Antártica", "SaúdeAntar", "paisagem"],
-    photographer: "Cap. Douglas Viana",
-    year: 2023,
-    location: {
-      BR: "Estação Comandante Ferraz, Ilha Rei George",
-      EN: "Comandante Ferraz Station, King George Island",
-      ES: "Estación Comandante Ferraz, Isla de Rey Jorge"
-    }
-  },
-  {
-    id: 'ph2',
-    title: {
-      BR: "NPolar Almirante Maximiano Quebrando Barreiras",
-      EN: "Research Vessel Almirante Maximiano Breaking Barriers",
-      ES: "NPolar Almirante Maximiano Abriendo Camino"
-    },
-    description: {
-      BR: "O majestoso navio polar navegando sob mar agitado e blocos flutuantes nas proximidades da Península Antártica.",
-      EN: "The polar oceanographic vessel navigating through extreme waves and floating ice floes near the Peninsula.",
-      ES: "El navío oceanográfico navegando bajo olas severas y sábanas de hielo cerca de la península."
-    },
-    imageUrl: "https://images.unsplash.com/photo-1506443306124-77ae348f9565?q=80&w=1200",
-    operation: 40,
-    subcategory: "Navio",
-    tags: ["navio", "Antártica", "tempestade", "logística", "SaúdeAntar"],
-    photographer: "Oficial Mariana Torres",
-    year: 2121,
-    location: {
-      BR: "Estreito de Drake - Oceano Antártico",
-      EN: "Drake Passage - Southern Ocean",
-      ES: "Pasaje de Drake - Océano Antártico"
-    }
-  },
-  {
-    id: 'ph3',
-    title: {
-      BR: "Acampamento de Glaciologia na Livingston",
-      EN: "Glaciology Camp on Livingston Island",
-      ES: "Campamento de Glaciología en Livingston"
-    },
-    description: {
-      BR: "Barracas de alta montanha abrigando cientistas sob condições de ventos catabáticos rigorosos e neve densa.",
-      EN: "Heavy duty mountaineering tents sheltering researchers during intense katabatic winds and deep snowfall.",
-      ES: "Tiendas de montaña resguardando a geólogos de vientos catabáticos severos y tormentas gélidas."
-    },
-    imageUrl: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?q=80&w=1200",
-    operation: 43,
-    subcategory: "Acampamento",
-    tags: ["acampamento", "gelo", "neve", "expedição", "coping", "isolamento"],
-    photographer: "Dr. Roberto Mendes",
-    year: 2024,
-    location: {
-      BR: "Península Byers, Ilha Livingston",
-      EN: "Byers Peninsula, Livingston Island",
-      ES: "Península Byers, Isla Livingston"
-    }
-  },
-  {
-    id: 'ph4',
-    title: {
-      BR: "O Teste Psicológico em Ambientes ICE",
-      EN: "Psychological Testing in ICE Environments",
-      ES: "Control Psicológico en Entorno ICE"
-    },
-    description: {
-      BR: "Momento reservado de avaliação dos níveis de cortisol e aplicação de escalas psicométricas na rotina de inverno.",
-      EN: "Evaluation of salivary cortisol levels and psychometric inventories during the long wintering season.",
-      ES: "Registro del cortisol salival y cuestionarios psicométricos aplicados durante el largo invierno polar."
-    },
-    imageUrl: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1200",
-    operation: 41,
-    subcategory: "Rotina da missão",
-    tags: ["saúde mental", "coping", "laboratório", "pesquisadores", "psicologia", "medicina polar"],
-    photographer: "Dra. Eliana Carvalho",
-    year: 2022,
-    location: {
-      BR: "Laboratório de Biossegurança, EACF",
-      EN: "Biosafety Laboratory, EACF",
-      ES: "Laboratorio de Bioseguridad, EACF"
-    }
-  },
-  {
-    id: 'ph5',
-    title: {
-      BR: "Colônia de Pinguins sob Solo Rochoso",
-      EN: "Penguin Colony over Volcanic Shingle",
-      ES: "Colonia de Pingüinos en Terreno Volcánico"
-    },
-    description: {
-      BR: "Fauna local se adaptando ao degelo temporário estival na face norte do arquipélago Shetland do Sul.",
-      EN: "Local wildlife nesting during the brief summer thaw on the northern archipelago of the South Shetlands.",
-      ES: "Fauna silvestre anidando durante el breve deshielo estival en el archipiélago de las Shetland del Sur."
-    },
-    imageUrl: "https://images.unsplash.com/photo-1481487196290-c152efe083f5?q=80&w=1200",
-    operation: 38,
-    subcategory: "Fauna antártica",
-    tags: ["fauna", "paisagem", "Antártica", "SaúdeAntar", "EACF"],
-    photographer: "Biólogo Daniel Souza",
-    year: 2019,
-    location: {
-      BR: "Ponta Wilderness - Baía do Almirantado",
-      EN: "Wilderness Spit - Admiralty Bay",
-      ES: "Punta Wilderness - Bahía Almirantazgo"
-    }
-  },
-  {
-    id: 'ph6',
-    title: {
-      BR: "Retrato Clássico do Expedicionário no Drake",
-      EN: "Mountaineer Face in Extreme Antarctica",
-      ES: "Retrato del Explorador de Altura Drake"
-    },
-    description: {
-      BR: "Rosto marcado pelo frio e fadiga mental após travessia tempestuosa fora das margens protegidas.",
-      EN: "A face worn by dry cold and mental stress after a intense crossing on hazardous open glaciers.",
-      ES: "Rostro fustigado por el viento gélido y estrés biológico tras un cruce complejo sobre glaciares."
-    },
-    imageUrl: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=1200",
-    operation: 44,
-    subcategory: "Retratos",
-    tags: ["pesquisadores", "Retratos", "isolamento", "ambiente ICE", "adaptação humana"],
-    photographer: "Luiz Felipe Rossi",
-    year: 2025,
-    location: {
-      BR: "Baía Científica Keller",
-      EN: "Keller Scientific Bay",
-      ES: "Bahía Científica Keller"
-    }
-  },
-  {
-    id: 'ph7',
-    title: {
-      BR: "Tempestade Devastadora na Geleira Wanda",
-      EN: "Whiteout Storm on Wanda Glacier",
-      ES: "Tormenta de Viento en Glaciar Wanda"
-    },
-    description: {
-      BR: "A névoa gelada onde o horizonte desaparece de forma absoluta, bloqueando as comunicações rádio.",
-      EN: "The blinding powder drift where the horizon dissolves completely, disrupting communication lines.",
-      ES: "La violenta nevasca donde el horizonte físico se difumina por completo, aislando las patrullas."
-    },
-    imageUrl: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?q=80&w=1200",
-    operation: 39,
-    subcategory: "Expedições externas",
-    tags: ["tempestade", "gelo", "neve", "expedição", "EACF"],
-    photographer: "Major Alexandre Ramos",
-    year: 2020,
-    location: {
-      BR: "Geleira Wanda - Domo Principal",
-      EN: "Wanda Glacier - Main Dome",
-      ES: "Glaciar Wanda - Domo Principal"
-    }
-  },
-  {
-    id: 'ph8',
-    title: {
-      BR: "A Solidão de um Abraço no Gelo",
-      EN: "The Solitude of a Cold Horizon",
-      ES: "La Soledad del Abrazo Polar"
-    },
-    description: {
-      BR: "Silhueta solitária em contemplação no mar congelado, representando o coping pelo silêncio reflexivo.",
-      EN: "A lonesome figure reflecting atop frozen ocean water, demonstrating coping through quiet meditation.",
-      ES: "Silueta solitaria contemplando el mar helado, mostrando un afrontamiento reflexivo en medio del confinamento."
-    },
-    imageUrl: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=1200",
-    operation: 42,
-    subcategory: "Paisagens",
-    tags: ["paisagem", "isolamento", "saúde mental", "coping", "Antártica"],
-    photographer: "Dr. Roberto Mendes",
-    year: 2023,
-    location: {
-      BR: "Baía Consultores, Ilha Livingston",
-      EN: "Consultants Bay, Livingston Island",
-      ES: "Bahía Consultores, Isla Livingston"
-    }
-  }
-];
+export const GALLERY_ITEMS: GalleryItem[] = [];
 
 export const VIDEO_ITEMS: VideoItem[] = [
- 
+  {
+    id: 'v5',
+    youtubeId: "L2HRu84c9g8",
+    title: {
+      BR: "Jairo Werner: Projeto SAÚDEANTAR-IA",
+      EN: "Jairo Werner: Projeto SAÚDEANTAR-IA",
+      ES: "Jairo Werner: Projeto SAÚDEANTAR-IA"
+    },
+    description: {
+      BR: "Uma análise detalhada das trajetórias metodológicas e das dinâmicas biopsicossociais vividas no deserto gelado durante a Operação 44.",
+      EN: "A highly informative review outlining the biopsychosocial dynamics and human coping of researchers in the frozen margins.",
+      ES: "Un análisis pormenorizado del comportamiento humano, resiliencia grupal y salud mental bajo el frío extremo polar."
+    },
+    duration: "14:22",
+    operation: 44,
+    subcategory: "Rotina da missão",
+    tags: ["saúde mental", "entrevista", "SaúdeAntar", "psicologia"],
+    director: "João Paulo Werdan",
+    year: 2025,
+    thumbnail: "https://img.youtube.com/vi/L2HRu84c9g8/hqdefault.jpg",
+    isFilm: false
+  },
+  {
+    id: 'v6',
+    youtubeId: "_aIdn3IhijU",
+    title: {
+      BR: "SaúdeAntar: Evento da 1a Transmissão Holográfica de Telessaúde da Antártica ao Brasil",
+      EN: "SaúdeAntar: Evento da 1a Transmissão Holográfica de Telessaúde da Antártica ao Brasil",
+      ES: "SaúdeAntar: Evento da 1a Transmissão Holográfica de Telessaúde da Antártica ao Brasil"
+    },
+    description: {
+      BR: "Live debatendo como o advento da internet de alta velocidade na EACF alterou o isolamento e os ritmos psíquicos.",
+      EN: "Special stream debating how high-speed connectivity in modern bases has altered classical polar loneliness.",
+      ES: "Mesa interactiva de debate científico sobre conectividad instantánea, soporte digital y resiliencia en la base."
+    },
+    duration: "45:10",
+    operation: 44,
+    subcategory: "EACF",
+    tags: ["EACF", "saúde mental", "conectividade", "confinamento"],
+    director: "João Paulo Werdan & Eliane G. da Silva",
+    year: 2025,
+    thumbnail: "https://img.youtube.com/vi/_aIdn3IhijU/hqdefault.jpg",
+    isFilm: false
+  },
+  {
+    id: 'v7',
+    youtubeId: "MSE-zN9AM4A",
+    title: {
+      BR: "Winterover: O Impacto Psicológico do Inverno Polar",
+      EN: "Winterover: Psychological Impact of polar darkness",
+      ES: "Winterover: El Impacto Psicológico del Invierno Polar"
+    },
+    description: {
+      BR: "Discussão aprofundada sobre a vivência psicológica continuada durante os meses de confinamento sob as trevas climáticas e gelo.",
+      EN: "Deep talk outlining extreme seasonal adaptation, hormonal spikes, and social support during wintering darkness.",
+      ES: "Sesión científica abordando la clínica de la noche polar profunda, depresión estacional y adaptación."
+    },
+    duration: "52:15",
+    operation: 43,
+    subcategory: "Rotina da missão",
+    tags: ["winterover", "saúde mental", "coping", "isolamento"],
+    director: "Dr. Roberto Mendes",
+    year: 2024,
+    thumbnail: "https://img.youtube.com/vi/MSE-zN9AM4A/hqdefault.jpg",
+    isFilm: false
+  },
+  {
+    id: 'v8',
+    youtubeId: "LqN1XSPcELI",
+    title: {
+      BR: "Estratégias de Cooperação e Coesão de Grupo na Antártica",
+      EN: "Cooperative Strategies and Group Cohesion in Antarctica",
+      ES: "Estrategias de Cooperación y Cohesión de Grupo en la Antártida"
+    },
     description: {
       BR: "Transmissão sobre a co-construção do espírito de equipe, dinâmicas de apoio horizontal e liderança compassiva.",
       EN: "Live presentation sharing tips and metrics on group alignment and horizontal support in field camps.",
@@ -436,7 +316,7 @@ export const VIDEO_ITEMS: VideoItem[] = [
     tags: ["coesão", "trabalho em equipe", "isolamento", "coping"],
     director: "Dra. Patricia Oliveira",
     year: 2025,
-    thumbnail: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=800",
+    thumbnail: "https://img.youtube.com/vi/LqN1XSPcELI/hqdefault.jpg",
     isFilm: false
   },
   {
@@ -458,7 +338,7 @@ export const VIDEO_ITEMS: VideoItem[] = [
     tags: ["sono", "estresse", "fisiologia", "EACF"],
     director: "Dr. Lucas Carvalho",
     year: 2023,
-    thumbnail: "https://images.unsplash.com/photo-1547190027-915998333755?q=80&w=800",
+    thumbnail: "https://img.youtube.com/vi/pfc1bWnzatQ/hqdefault.jpg",
     isFilm: false
   },
   {
@@ -476,20 +356,20 @@ export const VIDEO_ITEMS: VideoItem[] = [
     },
     duration: "48:30",
     operation: 44,
-    subcategory: "Expedições externas",
+    subcategory: "Rotina da missão",
     tags: ["adaptação", "psicologia ambiental", "extremo", "isolamento"],
     director: "João Paulo Werdan & Colaboradores",
     year: 2025,
-    thumbnail: "https://images.unsplash.com/photo-1506443306124-77ae348f9565?q=80&w=800",
+    thumbnail: "https://img.youtube.com/vi/vu25zcQx6K4/hqdefault.jpg",
     isFilm: false
   },
   {
     id: 'v11',
     youtubeId: "OWQeeJPuuFY",
     title: {
-      BR: "O Futuro da Pesquisa Biopsicossocial na Antártica",
-      EN: "The Future of Biopsychosocial Research in Antarctica",
-      ES: "El Futuro de la Investigación Biopsicosocial en la Antártida"
+      BR: "Minhas Vivências na Antártica (I Seminário SaúdeAntar)",
+      EN: "Minhas Vivências na Antártica (I Seminário SaúdeAntar)",
+      ES: "Minhas Vivências na Antártica (I Seminário SaúdeAntar)"
     },
     description: {
       BR: "Estudos futuros integrando neurociência, psicologia espacial e biofeedback adaptado para futuras expedições interplanetárias.",
@@ -502,7 +382,7 @@ export const VIDEO_ITEMS: VideoItem[] = [
     tags: ["pesquisa", "futuro", "biopsicossocial", "ciência"],
     director: "João Paulo Werdan",
     year: 2025,
-    thumbnail: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=800",
+    thumbnail: "https://img.youtube.com/vi/OWQeeJPuuFY/hqdefault.jpg",
     isFilm: false
   }
 ];
@@ -851,7 +731,7 @@ export const MAP_MARKERS: MapMarker[] = [
     type: 'camp',
     operation: 43,
     associatedPhotos: ['ph3', 'ph8'],
-    associatedVideos: ['v4'],
+    associatedVideos: [],
     associatedPublications: ['pub3']
   },
   {
@@ -881,7 +761,7 @@ export const MAP_MARKERS: MapMarker[] = [
     type: 'camp',
     operation: 44,
     associatedPhotos: ['ph6'],
-    associatedVideos: ['v4'],
+    associatedVideos: [],
     associatedPublications: ['pub3']
   }
 ];

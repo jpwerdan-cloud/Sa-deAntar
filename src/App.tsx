@@ -16,7 +16,7 @@ import {
 } from './data';
 import { MapSection } from './components/MapSection';
 import { ProjectDetail } from './components/ProjectDetail';
-import { supabase, uploadImageToSupabase, fetchImagesFromSupabaseBucket } from './supabase';
+import { supabase, uploadImageToSupabase, fetchImagesFromSupabaseBucket, fetchImagesFromSupabaseBucketRecursive } from './supabase';
 
 export default function App() {
   // --- STATE LAYER ---
@@ -65,11 +65,9 @@ export default function App() {
   const handleSyncBucketPhotos = async (silent = false) => {
     if (!silent) setIsSyncingBucket(true);
     try {
-      // Pull from both default folder uploads/ and root folder of the bucket
-      const rootFiles = await fetchImagesFromSupabaseBucket(supabaseBucketName, '');
-      const uploadsFiles = await fetchImagesFromSupabaseBucket(supabaseBucketName, 'uploads');
+      // Pull recursively from the bucket
+      const allFiles = await fetchImagesFromSupabaseBucketRecursive(supabaseBucketName, '');
       
-      const allFiles = [...rootFiles, ...uploadsFiles];
       if (allFiles.length > 0) {
         // Filter out files that don't look like common images (optional but good practice)
         const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif'];
@@ -81,9 +79,59 @@ export default function App() {
         const loadedPhotos: GalleryItem[] = imageFiles.map((file, idx) => {
           const isUpl = file.name.includes('_') && !isNaN(Number(file.name.split('_').pop()?.split('.')[0] || ''));
           const descriptionPT = isUpl
-            ? "Fotografia de expedição real."
+            ? "Fotografia de expedição real importada automaticamente do Supabase Storage."
+            : `Arquivo '${file.name}' localizado e carregado do seu bucket Supabase. Caminho: ${file.fullPath}`;
           
+          // Parse folders from full path (e.g., "op 44/acampamento/my_photo.jpg" -> ["op 44", "acampamento"])
+          const parts = file.fullPath.split('/');
+          const folders = parts.slice(0, parts.length - 1);
           
+          // Use folder and subfolder names as tags as requested
+          const folderTags = folders.map(f => f.trim()).filter(Boolean);
+          const baseTags = ["Supabase", "Sincronizado"];
+          const finalTags = Array.from(new Set([...folderTags, ...baseTags]));
+
+          // Parse Operation from folder names
+          let operation = 44; // Default to newest Operation for these custom photos
+          const opFolder = folders.find(f => f.toLowerCase().includes('op') || /^\d+$/.test(f.trim()) || f.toLowerCase().includes('opera'));
+          if (opFolder) {
+            const opMatch = opFolder.match(/\d+/);
+            if (opMatch) {
+              operation = parseInt(opMatch[0], 10);
+            }
+          }
+
+          // Parse Subcategory from folder names (find a non-operation folder)
+          let subcategory: Subcategory = "Paisagens";
+          const nonOpFolder = [...folders].reverse().find(f => !f.toLowerCase().includes('op') && !/^\d+$/.test(f.trim()) && !f.toLowerCase().includes('opera'));
+          if (nonOpFolder) {
+            const normalized = nonOpFolder.trim().toLowerCase();
+            if (normalized.includes('eacf') || normalized.includes('estação') || normalized.includes('estacao')) {
+              subcategory = 'EACF';
+            } else if (normalized.includes('navio') || normalized.includes('embarca') || normalized.includes('barco')) {
+              subcategory = 'Navio';
+            } else if (normalized.includes('acampamento') || normalized.includes('camp')) {
+              subcategory = 'Acampamento';
+            } else if (normalized.includes('paisagem') || normalized.includes('paisagens') || normalized.includes('landscape') || normalized.includes('natureza')) {
+              subcategory = 'Paisagens';
+            } else if (normalized.includes('rotina') || normalized.includes('missão') || normalized.includes('missao') || normalized.includes('trabalho')) {
+              subcategory = 'Rotina da missão';
+            } else if (normalized.includes('fauna') || normalized.includes('animal') || normalized.includes('pinguim') || normalized.includes('bicho')) {
+              subcategory = 'Paisagens';
+            } else if (normalized.includes('extern') || normalized.includes('externa') || normalized.includes('aventura')) {
+              subcategory = 'Rotina da missão';
+            } else if (normalized.includes('retrato') || normalized.includes('retratos') || normalized.includes('pessoa') || normalized.includes('membro')) {
+              subcategory = 'Rotina da missão';
+            } else {
+              // Capitalize first letter and verify if it's a valid Subcategory type
+              const capitalized = nonOpFolder.charAt(0).toUpperCase() + nonOpFolder.slice(1).toLowerCase();
+              const validCategories = ['EACF', 'Navio', 'Acampamento', 'Paisagens', 'Rotina da missão'];
+              if (validCategories.includes(capitalized)) {
+                subcategory = capitalized as Subcategory;
+              }
+            }
+          }
+
           return {
             id: `supabase_${file.name}_${idx}`,
             title: {
@@ -93,15 +141,15 @@ export default function App() {
             },
             description: {
               BR: descriptionPT,
-              EN: `Real-time physical photo '${supabaseBucketName}'.`,
-              ES: `Foto real '${supabaseBucketName}'.`
+              EN: `Real-time physical photo retrieved automatically from your bucket '${supabaseBucketName}'. Path: ${file.fullPath}`,
+              ES: `Foto real recuperada dinámicamente desde su contenedor '${supabaseBucketName}'. Ruta: ${file.fullPath}`
             },
             imageUrl: file.publicUrl,
-            operation: 44, // Default to newest Operation for these custom photos
-            subcategory: "Paisagens",
-            tags: ["Sincronizado", "Acervo Real"],
-        
-            year: 2026,
+            operation,
+            subcategory,
+            tags: finalTags,
+            photographer: "Supabase Explorer",
+            year: operation === 44 ? 2026 : 2020 + (operation - 40), // Calculate year relative to oldest OP
             location: {
               BR: "Estação Comandante Ferraz",
               EN: "Comandante Ferraz Station",
@@ -121,8 +169,8 @@ export default function App() {
           const count = loadedPhotos.length;
           setSyncMessage(
             language === 'BR' 
-              ? `✓ Sincronizado! ${count} imagens reais .` 
-              : `✓ Synced! ${count} real images .`
+              ? `✓ Sincronizado! ${count} imagens reais importadas do seu bucket do Supabase.` 
+              : `✓ Synced! ${count} real images imported from your Supabase bucket.`
           );
           setTimeout(() => setSyncMessage(null), 5000);
         }
@@ -520,7 +568,7 @@ export default function App() {
                   {/* Video Search Results */}
                   {searchResults.videos.length > 0 && (
                     <div className="mt-4">
-                      <h4 className="text-[9px] font-mono uppercase tracking-[0.2em] text-cyan-400 border-b border-zinc-900 pb-1 mb-2">VÍDEOS & FILMES</h4>
+                      <h4 className="text-[9px] font-mono uppercase tracking-[0.2em] text-cyan-400 border-b border-zinc-900 pb-1 mb-2">VÍDEOS & LIVES</h4>
                       <ul className="space-y-2">
                         {searchResults.videos.map(item => (
                           <li 
@@ -724,9 +772,10 @@ export default function App() {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] opacity-80 z-10" />
                   <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/40 to-transparent z-10" />
                   <img 
-                    src="https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?auto=format&fit=crop&q=80&w=2000" 
+                    src="https://lh3.googleusercontent.com/d/1Ikf5BxF33P-bj_rJVuLbJhHACNSMNop8" 
                     className="w-full h-full object-cover scale-102 animate-slow-zoom brightness-75 opacity-70 contrast-110"
                     alt="Antarctica Landscape"
+                    referrerPolicy="no-referrer"
                   />
                 </div>
 
@@ -804,9 +853,8 @@ export default function App() {
                           alt="" 
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-5 flex flex-col justify-end">
-                          <span className="text-[8px] font-mono text-cyan-400 mb-1 uppercase tracking-widest">OP {item.operation} • {item.duration}</span>
+                          <span className="text-[8px] font-mono text-cyan-400 mb-1 uppercase tracking-widest">{item.duration}</span>
                           <h4 className="font-light text-white text-md md:text-lg mb-1 leading-snug">{item.title[language]}</h4>
-                          <span className="text-[9px] font-mono text-zinc-500 uppercase">{item.director}</span>
                         </div>
                       </div>
                     ))}
@@ -999,7 +1047,7 @@ export default function App() {
                     >
                       {t.allSubcats}
                     </button>
-                    {['EACF', 'Navio', 'Acampamento', 'Paisagens', 'Rotina da missão', 'Fauna antártica', 'Expedições externas', 'Retratos'].map((sub) => (
+                    {['EACF', 'Navio', 'Acampamento', 'Paisagens', 'Rotina da missão'].map((sub) => (
                       <button
                         key={sub}
                         onClick={() => setSelectedSubcategory(sub as Subcategory)}
@@ -1158,7 +1206,7 @@ export default function App() {
                             onChange={(e) => setUploadSubcat(e.target.value as Subcategory)}
                             className="w-full bg-zinc-950 border border-zinc-800 p-2 text-white"
                           >
-                            {['EACF','Navio','Acampamento','Paisagens','Rotina da missão','Fauna antártica','Expedições externas','Retratos'].map((num) => (
+                            {['EACF','Navio','Acampamento','Paisagens','Rotina da missão'].map((num) => (
                               <option key={num} value={num}>{num}</option>
                             ))}
                           </select>
@@ -1337,7 +1385,7 @@ export default function App() {
             <div className="max-w-7xl mx-auto px-6 pt-12">
               <div className="mb-12">
                 <span className="font-mono text-[10px] uppercase text-cyan-400 tracking-[0.3em] block mb-2">
-                   FILMES & DOCUMENTÁRIOS DO SaúdeAntar
+                   LIVES DO SaúdeAntar
                 </span>
                 <h2 className="text-4xl text-white font-light">
                    {t.moviesTitle}
@@ -1372,7 +1420,6 @@ export default function App() {
                     <div className="p-6 flex-1 flex flex-col justify-between">
                       <div>
                         <div className="flex justify-between items-center text-[9px] font-mono text-cyan-400 uppercase tracking-widest mb-2">
-                          <span>OP {item.operation}</span>
                           <span>{item.subcategory}</span>
                         </div>
                         <h3 className="text-2xl font-light text-white mb-2 leading-none">
@@ -1725,6 +1772,7 @@ export default function App() {
                     setActiveTab('publications');
                   }}
                   theme={theme}
+                  allPhotos={combinedPhotos}
                 />
               </div>
             </div>

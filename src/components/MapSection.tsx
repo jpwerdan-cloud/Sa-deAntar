@@ -3,7 +3,7 @@ import { APIProvider, Map as GoogleMap, AdvancedMarker, InfoWindow, Pin } from '
 import { 
   MapPin, Eye, Compass, Image, Video, FileText, ChevronLeft, ChevronRight, X, Sparkles, AlertTriangle
 } from 'lucide-react';
-import { MapMarker, Language } from '../types';
+import { MapMarker, Language, GalleryItem } from '../types';
 import { TRANSLATIONS, MAP_MARKERS, GALLERY_ITEMS, VIDEO_ITEMS, PUBLICATION_ITEMS } from '../data';
 
 interface MapSectionProps {
@@ -12,6 +12,7 @@ interface MapSectionProps {
   onSelectVideo: (videoId: string) => void;
   onSelectPublication: (pubId: string) => void;
   theme: string;
+  allPhotos?: GalleryItem[];
 }
 
 // Custom Map Style for Dark Theme
@@ -41,7 +42,8 @@ export function MapSection({
   onSelectPhoto,
   onSelectVideo,
   onSelectPublication,
-  theme
+  theme,
+  allPhotos = GALLERY_ITEMS
 }: MapSectionProps) {
   const [selectedMarker, setSelectedMarker] = useState<MapMarker | null>(null);
   
@@ -64,7 +66,7 @@ export function MapSection({
   const triggerLightbox = (photos: string[], startIndex: number) => {
     // Resolve IDs to actual URLs or items
     const urls = photos.map(id => {
-      const gItem = GALLERY_ITEMS.find(item => item.id === id);
+      const gItem = allPhotos.find(item => item.id === id);
       return gItem ? gItem.imageUrl : "https://images.unsplash.com/photo-1516055619834-586f8c75d1de?q=80&w=1200";
     });
     setLightboxImages(urls);
@@ -157,7 +159,7 @@ export function MapSection({
                     </p>
                     <div className="grid grid-cols-3 gap-1">
                       {selectedMarker.associatedPhotos.map((id, index) => {
-                        const item = GALLERY_ITEMS.find(g => g.id === id);
+                        const item = allPhotos.find(g => g.id === id);
                         if (!item) return null;
                         return (
                           <div 
@@ -328,7 +330,7 @@ export function MapSection({
                     </span>
                     <div className="grid grid-cols-4 gap-2">
                       {selectedMarker.associatedPhotos.map((id, index) => {
-                        const item = GALLERY_ITEMS.find(g => g.id === id);
+                        const item = allPhotos.find(g => g.id === id);
                         if (!item) return null;
                         return (
                           <div 

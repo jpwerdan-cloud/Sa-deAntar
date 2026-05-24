@@ -47,9 +47,6 @@ export function ProjectDetail({
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-900 sticky top-0 bg-zinc-950/90 backdrop-blur z-20">
           <div className="flex items-center gap-3">
             <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-cyan-400 bg-cyan-950/50 px-2 py-1 select-none border border-cyan-800/40">
-              OP {item.operation}
-            </span>
-            <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-zinc-400">
               {item.subcategory}
             </span>
           </div>
@@ -130,21 +127,9 @@ export function ProjectDetail({
               <div className="space-y-4 font-mono text-[11px] border-y border-zinc-900 py-6 mb-6">
                 <div className="flex justify-between">
                   <span className="text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                    <User className="w-3.5 h-3.5 text-cyan-400" /> DIRECTED BY
-                  </span>
-                  <span className="text-zinc-300">{item.director}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-500 uppercase tracking-widest flex items-center gap-2">
                     <Calendar className="w-3.5 h-3.5 text-cyan-400" /> YEAR OF FIELDWORK
                   </span>
                   <span className="text-zinc-300">{item.year}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                    <Compass className="w-3.5 h-3.5 text-cyan-400" /> BASE GEOGRAPHIC INDEX
-                  </span>
-                  <span className="text-zinc-300 text-right">{item.subcategory}</span>
                 </div>
               </div>
 
@@ -186,7 +171,7 @@ export function ProjectDetail({
                         {rev.title[language]}
                       </div>
                       <div className="font-mono text-[9px] text-zinc-500 mt-1 uppercase">
-                        OP {rev.operation} • {rev.duration}
+                        {rev.duration}
                       </div>
                     </div>
                   </div>

@@ -5,10 +5,7 @@ export type Subcategory =
   | 'Navio'
   | 'Acampamento'
   | 'Paisagens'
-  | 'Rotina da missão'
-  | 'Fauna antártica'
-  | 'Expedições externas'
-  | 'Retratos';
+  | 'Rotina da missão';
 
 export type MediaType = 'photo' | 'video' | 'publication' | 'interview' | 'blog';
 

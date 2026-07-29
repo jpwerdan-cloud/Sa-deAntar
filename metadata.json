@@ -1,6 +1,6 @@
 {
-  "name": "SaúdeAntar-ia",
-  "description": "Portal documental, científico e audiovisual sobre as missões brasileiras na Antártica (PROANTAR) e comportamento humano em ambientes extremos (ICE).",
+  "name": "SaúdeAntar-ia — HUB AUDIOVISUAL & CIENTÍFICO",
+  "description": "Plataforma científica de monitoramento da saúde mental e fatores humanos do projeto SAÚDEANTAR na Antártica.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

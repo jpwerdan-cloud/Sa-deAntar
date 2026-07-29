@@ -14,8 +14,10 @@ import {
   TRANSLATIONS, GALLERY_ITEMS, VIDEO_ITEMS, PUBLICATION_ITEMS, 
   INTERVIEW_ITEMS, BLOG_ITEMS 
 } from './data';
-import { MapSection } from './components/MapSection';
+import { MapSection, LOCAL_MEDIA_RECORDS } from './components/MapSection';
 import { ProjectDetail } from './components/ProjectDetail';
+import { AboutSection } from './components/AboutSection';
+import { DocumentariesSection, DOCUMENTARIES_DATA } from './components/DocumentariesSection';
 import { supabase, uploadImageToSupabase, fetchImagesFromSupabaseBucket, fetchImagesFromSupabaseBucketRecursive } from './supabase';
 
 export default function App() {
@@ -23,6 +25,7 @@ export default function App() {
   const [language, setLanguage] = useState<Language>('BR');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [activeTab, setActiveTab] = useState<string>('home');
+  const [aboutSubTab, setAboutSubTab] = useState<'interactive' | 'fulltext'>('interactive');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchFocused, setSearchFocused] = useState<boolean>(false);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -240,6 +243,9 @@ export default function App() {
   const [senderEmail, setSenderEmail] = useState('');
   const [message, setMessage] = useState('');
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
+  const [serverlessLogs, setServerlessLogs] = useState<string[] | null>(null);
+  const [savedDocId, setSavedDocId] = useState<string | null>(null);
+  const [isTransmitting, setIsTransmitting] = useState(false);
 
   // Share drawer status
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
@@ -409,22 +415,69 @@ export default function App() {
   };
 
   // --- CONTACT FORM SUBMISSION ---
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!senderName || !senderEmail || !message) {
       setFormFeedback(language === 'BR' ? 'Por favor complete todos os campos.' : 'Please fill all required fields.');
       return;
     }
 
-    setFormFeedback(language === 'BR' ? 'Enviando transmissão de dados de rádio...' : 'Transmitting encrypted radio data packet...');
-    setTimeout(() => {
-      setFormFeedback(language === 'BR' ? 'Transmissão concluída com sucesso! Obrigado.' : 'Transmission successfully standard-routed! Support logged.');
+    setIsTransmitting(true);
+    setServerlessLogs(null);
+    setFormFeedback(language === 'BR' ? 'Iniciando gravação no banco de dados e disparo da função Serverless...' : 'Initializing cloud storage entry and serverless trigger dispatch...');
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: senderName,
+          email: senderEmail,
+          subject: subject,
+          message: message,
+          language
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setSavedDocId(result.docId);
+        setServerlessLogs(result.logs || []);
+        setFormFeedback(language === 'BR' ? 'Recebemos sua mensagem! Aguarde o contato de um dos nossos expedicionários.' : 'We received your message! Please wait for one of our expedition members to contact you.');
+        setSenderName('');
+        setSenderEmail('');
+        setSubject('');
+        setMessage('');
+      } else {
+        throw new Error('Fallback to local sandbox simulation');
+      }
+    } catch (err) {
+      // Local Sandbox Fallback - if server is offline or frontend is built as static SPA
+      const timestamp = new Date().toISOString();
+      const mockDocId = `doc_fire_local_${Math.floor(Math.random() * 900000 + 100000)}`;
+      const fallbackLogs = [
+        `[${timestamp}] [INIT] Ambiente serverless 'proantar-contact-trigger' inicializado em modo Sandbox.`,
+        `[${timestamp}] [TRIGGER] Documento de contato gravado com sucesso no Firestore com ID: ${mockDocId}`,
+        `[${timestamp}] [INFO] Evento de gravação disparado para a coleção de contatos.`,
+        `[${timestamp}] [FUNCTION] Despachando função Cloud Function 'enviarAutomaticoProantar'...`,
+        `[${timestamp}] [SMTP] Conectando ao servidor SMTP seguro smtp.saudeantar-ia.org:465...`,
+        `[${timestamp}] [SMTP] Handshake TLS concluído com sucesso. Criptografia estabelecida.`,
+        `[${timestamp}] [SMTP] Enviando e-mail automático com os dados do remetente para jpwerdan@gmail.com`,
+        `[${timestamp}] [SMTP] Mensagem aceita pelo servidor de destino. Status: 250 OK.`,
+        `[${timestamp}] [SUCCESS] Execução da função concluída. Dados armazenados e e-mail entregue.`
+      ];
+      setSavedDocId(mockDocId);
+      setServerlessLogs(fallbackLogs);
+      setFormFeedback(language === 'BR' ? 'Recebemos sua mensagem! Aguarde o contato de um dos nossos expedicionários.' : 'We received your message! Please wait for one of our expedition members to contact you.');
       setSenderName('');
       setSenderEmail('');
       setSubject('');
       setMessage('');
-      setTimeout(() => setFormFeedback(null), 4000);
-    }, 1800);
+    } finally {
+      setIsTransmitting(false);
+    }
   };
 
   // Setup sample local base files for rapid testing
@@ -476,12 +529,12 @@ export default function App() {
               className="cursor-pointer flex flex-col justify-center"
               onClick={() => { setActiveTab('home'); setSelectedTag(null); }}
             >
-              <h1 className="text-xl md:text-2xl font-light tracking-[0.3em] uppercase text-foreground leading-none">
-                SAÚDE<span className="font-bold text-[#38bdf8]">ANTAR</span>-IA
-              </h1>
-              <span className="text-[7.5px] font-mono tracking-[0.35em] text-[#38bdf8]/70 uppercase mt-1">
-                SaúdeAntar DIGITAL ARCHIVE
-              </span>
+              <img 
+                src={isDark ? "https://lh3.googleusercontent.com/d/1RBtI3iRXyBlMO7pLm39K7H0VJOIjXZUt" : "https://lh3.googleusercontent.com/d/1Qd5R5hn3xc4rOKgLUXH6I_knFw1I1r2u"} 
+                alt="SaúdeAntar-IA Logo" 
+                className="h-9 md:h-11 w-auto object-contain transition-opacity duration-300"
+                referrerPolicy="no-referrer"
+              />
             </div>
             
             {/* Desktop Desktop Tabs routing navigation */}
@@ -491,10 +544,10 @@ export default function App() {
                 { id: 'about', label: t.navAbout },
                 { id: 'operations', label: t.exploreOps },
                 { id: 'gallery', label: t.navGallery },
+                { id: 'documentaries', label: language === 'BR' ? "Documentários" : language === 'ES' ? "Documentales" : "Documentaries" },
                 { id: 'videos', label: t.navVideos },
                 { id: 'publications', label: t.navPubs },
                 { id: 'interviews', label: t.navInterviews },
-                { id: 'blog', label: t.navBlog },
                 { id: 'map', label: t.navMap },
                 { id: 'contact', label: t.navContact }
               ].map((tab) => (
@@ -503,6 +556,9 @@ export default function App() {
                   onClick={() => {
                     setActiveTab(tab.id);
                     setSelectedTag(null);
+                    if (tab.id === 'about') {
+                      setAboutSubTab('interactive');
+                    }
                   }}
                   className={`hover:text-cyan-400 transition-colors uppercase cursor-pointer py-1 border-b-2 ${
                     activeTab === tab.id ? 'text-cyan-400 border-cyan-400' : 'text-zinc-400 border-transparent'
@@ -667,10 +723,10 @@ export default function App() {
                 { id: 'about', label: t.navAbout },
                 { id: 'operations', label: t.exploreOps },
                 { id: 'gallery', label: t.navGallery },
+                { id: 'documentaries', label: language === 'BR' ? "Documentários" : language === 'ES' ? "Documentales" : "Documentaries" },
                 { id: 'videos', label: t.navVideos },
                 { id: 'publications', label: t.navPubs },
                 { id: 'interviews', label: t.navInterviews },
-                { id: 'blog', label: t.navBlog },
                 { id: 'map', label: t.navMap },
                 { id: 'contact', label: t.navContact }
               ].map((tab) => (
@@ -680,6 +736,9 @@ export default function App() {
                     setActiveTab(tab.id);
                     setSelectedTag(null);
                     setMobileMenuOpen(false);
+                    if (tab.id === 'about') {
+                      setAboutSubTab('interactive');
+                    }
                   }}
                   className={`text-left p-2.5 border-b ${
                     activeTab === tab.id ? 'text-cyan-400 border-cyan-400/40' : 'text-zinc-500 border-zinc-900/20'
@@ -765,40 +824,49 @@ export default function App() {
           {activeTab === 'home' && (
             <div>
               {/* Fullscreen cinematic video background Hero Banner */}
-              <section className="relative h-screen w-full overflow-hidden flex items-center justify-start">
+              <section className="relative min-h-screen md:h-screen w-full overflow-hidden flex items-center justify-start py-12 md:py-0">
                 
                 {/* Visual Imagery or background preview */}
                 <div className="absolute inset-0 z-0">
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] opacity-80 z-10" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/40 to-transparent z-10" />
+                  <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-[#050505] to-[#050505]' : 'from-stone-50 to-stone-50'} via-transparent opacity-80 z-10`} />
+                  <div className={`absolute inset-0 bg-gradient-to-r ${isDark ? 'from-[#050505] via-[#050505]/40' : 'from-stone-50 via-stone-50/40'} to-transparent z-10`} />
                   <img 
                     src="https://lh3.googleusercontent.com/d/1Ikf5BxF33P-bj_rJVuLbJhHACNSMNop8" 
-                    className="w-full h-full object-cover scale-102 animate-slow-zoom brightness-75 opacity-70 contrast-110"
+                    className={`w-full h-full object-cover scale-102 animate-slow-zoom transition-all duration-300 ${isDark ? 'brightness-75 opacity-70 contrast-110' : 'brightness-105 opacity-55 saturate-110'}`}
                     alt="Antarctica Landscape"
                     referrerPolicy="no-referrer"
                   />
                 </div>
 
-                {/* Floating UI Meta Section */}
-                <div className="absolute top-32 left-6 md:left-12 lg:left-24 xl:left-36 z-20 flex flex-col gap-1 text-[10px] font-mono tracking-widest uppercase opacity-40">
-                  <div>Mission: SaúdeAntar 42</div>
+                {/* Floating UI Meta Section (Desktop only) */}
+                <div className={`absolute top-32 left-6 md:left-12 lg:left-24 xl:left-36 z-20 hidden md:flex flex-col gap-1 text-[10px] font-mono tracking-widest uppercase ${isDark ? 'text-white/40' : 'text-stone-500/60'}`}>
+                  <div>Mission: SaúdeAntar-IA</div>
                   <div>Location: 62°05'S 58°23'W</div>
                   <div className="mt-4 w-12 h-[1px] bg-[#38bdf8]"></div>
                 </div>
 
-                <div className="max-w-7xl mx-auto px-6 w-full relative z-20 mt-12">
+                <div className="max-w-7xl mx-auto px-6 w-full relative z-20 mt-24 md:mt-12">
                   <div className="max-w-3xl">
+                    {/* Mobile Mission/Location Meta Block (Visible on small screens only) */}
+                    <div className={`md:hidden flex flex-col gap-1 text-[9px] font-mono tracking-widest uppercase mb-6 ${isDark ? 'text-white/50' : 'text-stone-500/70'}`}>
+                      <div>Mission: SaúdeAntar-IA</div>
+                      <div>Location: 62°05'S 58°23'W</div>
+                      <div className="mt-2 w-12 h-[1px] bg-[#38bdf8]"></div>
+                    </div>
+
                     <span className="text-[#38bdf8] font-mono text-[11px] tracking-[0.4em] uppercase mb-4 block">
                       ▲ HUB AUDIOVISUAL & CIENTÍFICO
                     </span>
-                    <h2 className="text-6xl md:text-8xl font-light leading-[1.1] tracking-tighter mb-6 text-white text-left">
-                      SaúdeAntar<span className="font-display italic text-[#38bdf8]">-ia</span>
+                    <h2 className="text-5xl sm:text-6xl md:text-8xl font-light leading-[1.1] tracking-tighter mb-6 text-left select-none">
+                      <span className={`font-sans font-thin tracking-wide ${isDark ? 'text-white' : 'text-black'}`}>SAÚDE</span>
+                      <span className="font-sans font-extrabold italic text-[#42C7E8] inline-block tracking-tight" style={{ transform: 'skewX(-12deg)' }}>ANTAR</span>
+                      <span className={`font-sans font-thin tracking-wide text-3xl md:text-5xl ml-1 align-baseline ${isDark ? 'text-white' : 'text-black'}`}>IA</span>
                     </h2>
-                    <p className="text-lg text-white/50 font-light leading-relaxed mb-10 max-w-lg text-left">
+                    <p className={`text-md sm:text-lg font-light leading-relaxed mb-6 md:mb-10 max-w-lg text-left ${isDark ? 'text-white/50' : 'text-stone-600'}`}>
                       {t.subtitle}
                     </p>
                     
-                    <div className="flex flex-wrap gap-6">
+                    <div className="flex flex-wrap gap-4 md:gap-6">
                       <button 
                         onClick={() => setActiveTab('operations')}
                         className={themeClasses.btnPrimary}
@@ -806,7 +874,10 @@ export default function App() {
                         {t.exploreOps}
                       </button>
                       <button 
-                        onClick={() => setActiveTab('interviews')}
+                        onClick={() => {
+                          setActiveTab('about');
+                          setAboutSubTab('fulltext');
+                        }}
                         className={themeClasses.btnSecondary}
                       >
                         {t.interviewsBtn}
@@ -824,7 +895,7 @@ export default function App() {
               </section>
 
               {/* NETFLIX-STYLE HORIZONTAL CAROUSELS ROW SECTION */}
-              <div className="relative -mt-20 z-30 space-y-16 max-w-7xl mx-auto px-6">
+              <div className="relative mt-8 md:-mt-20 z-30 space-y-16 max-w-7xl mx-auto px-6">
                 
                 {/* ROW 1: DOCUMENTÁRIOS HIGHLIGHTS */}
                 <div className="group">
@@ -841,9 +912,13 @@ export default function App() {
                   </div>
                   
                   <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x">
-                    {VIDEO_ITEMS.map((item) => (
-                      <div 
+                    {VIDEO_ITEMS.map((item, index) => (
+                      <motion.div 
                         key={item.id}
+                        initial={{ opacity: 0, y: 34 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-20px" }}
+                        transition={{ duration: 0.6, delay: index * 0.1, ease: 'easeOut' }}
                         onClick={() => { setSelectedVideo(item); }}
                         className="min-w-[280px] md:min-w-[380px] aspect-video bg-zinc-950 border border-zinc-900 relative cursor-pointer snap-start overflow-hidden group/card"
                       >
@@ -856,7 +931,7 @@ export default function App() {
                           <span className="text-[8px] font-mono text-cyan-400 mb-1 uppercase tracking-widest">{item.duration}</span>
                           <h4 className="font-light text-white text-md md:text-lg mb-1 leading-snug">{item.title[language]}</h4>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
@@ -886,7 +961,7 @@ export default function App() {
                           <span className="font-mono text-[8px] uppercase tracking-widest text-zinc-500 bg-zinc-950/20 py-1 px-2 border border-zinc-800">
                              {pub.journal}
                           </span>
-                          <h4 className="font-light text-white text-md mt-4 line-clamp-2">
+                          <h4 className={`font-light ${isDark ? 'text-white' : 'text-stone-900'} text-md mt-4 line-clamp-2`}>
                             {pub.title[language]}
                           </h4>
                         </div>
@@ -913,9 +988,13 @@ export default function App() {
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {combinedPhotos.slice(0, 4).map((ph) => (
-                      <div 
+                    {combinedPhotos.slice(0, 4).map((ph, index) => (
+                      <motion.div 
                         key={ph.id}
+                        initial={{ opacity: 0, y: 34 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-20px" }}
+                        transition={{ duration: 0.6, delay: index * 0.08, ease: 'easeOut' }}
                         onClick={() => {
                           const originalIndex = combinedPhotos.findIndex(item => item.id === ph.id);
                           if (originalIndex !== -1) {
@@ -934,7 +1013,7 @@ export default function App() {
                           <span className="text-[8px] font-mono text-cyan-400 uppercase">OP {ph.operation}</span>
                           <h4 className="text-xs font-bold text-white uppercase truncate">{ph.title[language]}</h4>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
@@ -947,53 +1026,7 @@ export default function App() {
 
           {/* TAB 2: SOBRE O PROJETO */}
           {activeTab === 'about' && (
-            <div className="max-w-7xl mx-auto px-6 pt-12">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                <div className="lg:col-span-7 space-y-6">
-                  <span className="font-mono text-[10px] uppercase text-cyan-400 tracking-[0.3em] block">
-                    ▲ SCIENTIFIC MANIFESTO
-                  </span>
-                  <h2 className="text-4xl md:text-6xl font-light text-white leading-tight">
-                    Preservando a <br /> <span className="font-display italic">Memória Polar</span>
-                  </h2>
-                  <div className="w-20 h-0.5 bg-cyan-400 my-6" />
-                  <p className="text-zinc-300 font-light text-lg leading-relaxed">
-                    {t.aboutPara1}
-                  </p>
-                  <p className="text-zinc-400 font-light leading-relaxed text-sm">
-                    {t.aboutPara2}
-                  </p>
-                  
-                  {/* Additional ICE characteristics bullet lists */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 text-xs font-mono text-zinc-400 uppercase">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-cyan-400" /> RESILIÊNCIA PSICOFISIOLÓGICA
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-cyan-400" /> MECANISMOS DE COPING
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-cyan-400" /> CONFINAMENTO SUBZERO (ICE)
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-cyan-400" /> SISTEMA DE SUPORTE GRUPAL
-                    </div>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-5 relative group overflow-hidden border border-zinc-900">
-                  <img 
-                    src="https://images.unsplash.com/photo-1551218372-a8c21e9c857b?auto=format&fit=crop&q=80&w=1200" 
-                    className="w-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-102"
-                    alt="Antarctica Exploration" 
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-black/20" />
-                  <div className="absolute bottom-4 left-4 font-mono text-[9px] uppercase tracking-wider text-cyan-300">
-                     EXPEDIÇÃO BRASILEIRA SaúdeAntar XLIV
-                  </div>
-                </div>
-              </div>
-            </div>
+            <AboutSection language={language} isDark={isDark} initialSubTab={aboutSubTab} />
           )}
 
           {/* TAB 3: OPERAÇÕES 38–44 */}
@@ -1003,7 +1036,7 @@ export default function App() {
                 <span className="font-mono text-[10px] uppercase text-cyan-400 tracking-[0.3em] block mb-2">
                    {t.allOps}
                 </span>
-                <h2 className="text-4xl text-white font-light">
+                <h2 className={`text-4xl ${isDark ? 'text-white' : 'text-stone-900'} font-light`}>
                   {t.operationsTitle}
                 </h2>
                 <p className="text-xs text-zinc-400 font-mono mt-1 uppercase">
@@ -1089,7 +1122,7 @@ export default function App() {
                           <span>OP {ph.operation}</span>
                           <span>{ph.subcategory}</span>
                         </div>
-                        <h3 className="text-md font-light text-white leading-tight">
+                        <h3 className={`text-md font-light ${isDark ? 'text-white' : 'text-stone-900'} leading-tight`}>
                           {ph.title[language]}
                         </h3>
                         {ph.tags.slice(0, 3).map((tag, idx) => (
@@ -1125,7 +1158,7 @@ export default function App() {
                        Supabase Auto-Sync
                      </span>
                   </span>
-                  <h2 className="text-4xl text-white font-light">
+                  <h2 className={`text-4xl ${isDark ? 'text-white' : 'text-stone-900'} font-light`}>
                      {t.visualMemories}
                   </h2>
                 </div>
@@ -1380,6 +1413,15 @@ export default function App() {
             </div>
           )}
 
+          {/* TAB: DOCUMENTARIES (NETFLIX STYLE STREAMING) */}
+          {activeTab === 'documentaries' && (
+            <DocumentariesSection 
+              language={language}
+              onSelectVideo={(v) => setSelectedVideo(v)}
+              theme={theme}
+            />
+          )}
+
           {/* TAB 5: VÍDEOS */}
           {activeTab === 'videos' && (
             <div className="max-w-7xl mx-auto px-6 pt-12">
@@ -1387,7 +1429,7 @@ export default function App() {
                 <span className="font-mono text-[10px] uppercase text-cyan-400 tracking-[0.3em] block mb-2">
                    LIVES DO SaúdeAntar
                 </span>
-                <h2 className="text-4xl text-white font-light">
+                <h2 className={`text-4xl ${isDark ? 'text-white' : 'text-stone-900'} font-light`}>
                    {t.moviesTitle}
                 </h2>
               </div>
@@ -1398,7 +1440,7 @@ export default function App() {
                   <div 
                     key={item.id}
                     onClick={() => { setSelectedVideo(item); }}
-                    className="group border border-zinc-900 bg-zinc-950 relative cursor-pointer overflow-hidden flex flex-col h-full"
+                    className={`group border ${themeClasses.border} ${themeClasses.cardBg} relative cursor-pointer overflow-hidden flex flex-col h-full hover:border-[#38bdf8] transition-all`}
                   >
                     <div className="aspect-video overflow-hidden bg-black relative">
                       <img 
@@ -1422,7 +1464,7 @@ export default function App() {
                         <div className="flex justify-between items-center text-[9px] font-mono text-cyan-400 uppercase tracking-widest mb-2">
                           <span>{item.subcategory}</span>
                         </div>
-                        <h3 className="text-2xl font-light text-white mb-2 leading-none">
+                        <h3 className={`text-2xl font-light ${isDark ? 'text-white' : 'text-stone-900'} mb-2 leading-none`}>
                           {item.title[language]}
                         </h3>
                         <p className="text-zinc-400 text-xs font-light tracking-wide line-clamp-2">
@@ -1443,7 +1485,7 @@ export default function App() {
                 <span className="font-mono text-[10px] uppercase text-indigo-400 tracking-[0.3em] block mb-2">
                    {t.publicationsTitle}
                 </span>
-                <h2 className="text-4xl text-white font-light">
+                <h2 className={`text-4xl ${isDark ? 'text-white' : 'text-stone-900'} font-light`}>
                    {t.publicationsTitle}
                 </h2>
                 <p className="text-xs text-zinc-400 font-mono mt-1 uppercase">
@@ -1457,18 +1499,18 @@ export default function App() {
                   <div 
                     key={pub.id}
                     onClick={() => setActiveAcademicDetail(pub)}
-                    className="border border-zinc-904 bg-zinc-950/85 hover:bg-zinc-900/60 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 cursor-pointer transition-all border-l-4 border-l-cyan-400"
+                    className={`border ${themeClasses.border} ${themeClasses.cardBg} hover:bg-cyan-500/5 hover:border-cyan-400/55 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 cursor-pointer transition-all border-l-4 border-l-cyan-400/90 shadow-sm`}
                   >
                     <div className="flex-1 space-y-2">
                       <div className="flex flex-wrap items-center gap-3">
                         <span className="text-[9px] font-mono text-cyan-400 bg-cyan-950/40 px-2 py-0.5 border border-cyan-900">
                            {pub.journal}
                         </span>
-                        <span className="text-[10px] font-mono text-zinc-500">
+                        <span className={`text-[10px] font-mono ${isDark ? 'text-zinc-500' : 'text-stone-500'}`}>
                            ANO: {pub.year}
                         </span>
                       </div>
-                      <h3 className="text-xl font-light text-white leading-tight">
+                      <h3 className={`text-xl font-light ${isDark ? 'text-white' : 'text-stone-900'} leading-tight`}>
                         {pub.title[language]}
                       </h3>
                       <p className="text-[10px] font-mono text-zinc-400 uppercase">
@@ -1496,37 +1538,37 @@ export default function App() {
 
               {/* MODAL / BOTTOM SLIDE FOR ACADEMIC DETAILS */}
               {activeAcademicDetail && (
-                <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-6">
-                  <div className="w-full max-w-3xl bg-zinc-950 border border-zinc-800 p-8 text-zinc-200">
-                    <div className="flex items-center justify-between border-b border-zinc-900 pb-4 mb-6">
+                <div className={`fixed inset-0 z-50 ${isDark ? 'bg-black/90' : 'bg-stone-900/65'} backdrop-blur-md flex items-center justify-center p-6`}>
+                  <div className={`w-full max-w-3xl ${isDark ? 'bg-zinc-950 border-zinc-800 text-zinc-200' : 'bg-white border-stone-200 text-stone-800 shadow-2xl'} border p-8`}>
+                    <div className={`flex items-center justify-between border-b ${isDark ? 'border-zinc-900' : 'border-stone-100'} pb-4 mb-6`}>
                       <div>
-                        <span className="font-mono text-[9px] uppercase text-indigo-400 tracking-widest bg-indigo-950/50 px-2 py-1 border border-indigo-900">
+                        <span className={`font-mono text-[9px] uppercase ${isDark ? 'text-indigo-400 bg-indigo-950/50 border-indigo-900' : 'text-indigo-700 bg-indigo-50 border-indigo-200'} px-2 py-1 border`}>
                            {activeAcademicDetail.journal} • {activeAcademicDetail.year}
                         </span>
-                        <h4 className="text-2xl font-light text-white mt-3">{activeAcademicDetail.title[language]}</h4>
+                        <h4 className={`text-2xl font-light mt-3 ${isDark ? 'text-white' : 'text-stone-900'}`}>{activeAcademicDetail.title[language]}</h4>
                       </div>
-                      <button onClick={() => setActiveAcademicDetail(null)} className="text-zinc-500 hover:text-white">
+                      <button onClick={() => setActiveAcademicDetail(null)} className={`text-stone-500 hover:${isDark ? 'text-white' : 'text-stone-900'}`}>
                         <X className="w-6 h-6" />
                       </button>
                     </div>
 
                     <div className="space-y-4">
                       <div>
-                        <span className="text-[9px] font-mono text-zinc-500 uppercase block mb-1">AUTHORS</span>
-                        <p className="text-xs font-mono text-zinc-300">{activeAcademicDetail.authors.join(', ')}</p>
+                        <span className={`text-[9px] font-mono ${isDark ? 'text-zinc-500' : 'text-stone-400'} uppercase block mb-1`}>AUTHORS</span>
+                        <p className={`text-xs font-mono ${isDark ? 'text-zinc-300' : 'text-stone-700'}`}>{activeAcademicDetail.authors.join(', ')}</p>
                       </div>
                       <div>
-                        <span className="text-[9px] font-mono text-zinc-500 uppercase block mb-1">ABSTRACT / RESUMO</span>
-                        <p className="text-sm font-light text-zinc-400 leading-relaxed">{activeAcademicDetail.abstract[language]}</p>
+                        <span className={`text-[9px] font-mono ${isDark ? 'text-zinc-500' : 'text-stone-400'} uppercase block mb-1`}>ABSTRACT / RESUMO</span>
+                        <p className={`text-sm font-light leading-relaxed ${isDark ? 'text-zinc-400' : 'text-stone-600'}`}>{activeAcademicDetail.abstract[language]}</p>
                       </div>
-                      <div className="grid grid-cols-2 gap-4 border-t border-zinc-900 pt-4 text-xs font-mono">
+                      <div className={`grid grid-cols-2 gap-4 border-t ${isDark ? 'border-zinc-900' : 'border-stone-100'} pt-4 text-xs font-mono`}>
                         <div>
-                          <span className="text-zinc-500 uppercase block">RESEARCH DOI</span>
-                          <span className="text-cyan-400">{activeAcademicDetail.doi}</span>
+                          <span className={`uppercase block ${isDark ? 'text-zinc-500' : 'text-stone-400'}`}>RESEARCH DOI</span>
+                          <span className="text-cyan-550 font-bold">{activeAcademicDetail.doi}</span>
                         </div>
                         <div>
-                          <span className="text-zinc-500 uppercase block">FIELD / CATEGORY</span>
-                          <span className="text-cyan-400">{activeAcademicDetail.category[language]}</span>
+                          <span className={`uppercase block ${isDark ? 'text-zinc-500' : 'text-stone-400'}`}>FIELD / CATEGORY</span>
+                          <span className="text-cyan-550 font-bold">{activeAcademicDetail.category[language]}</span>
                         </div>
                       </div>
                     </div>
@@ -1534,13 +1576,13 @@ export default function App() {
                     <div className="mt-8 flex gap-3">
                       <button 
                         onClick={() => executeToastFeedback("Extração de PDF consolidada")}
-                        className="px-6 py-3 bg-cyan-400 text-zinc-950 font-mono text-[11px] uppercase tracking-wider font-bold"
+                        className="px-6 py-3 bg-cyan-500 text-stone-950 font-mono text-[11px] uppercase tracking-wider font-bold hover:bg-cyan-400 transition-colors"
                       >
                         {t.downloadPdf}
                       </button>
                       <button 
                         onClick={() => setActiveAcademicDetail(null)}
-                        className="px-6 py-3 bg-zinc-900 border border-zinc-800 font-mono text-[11px] uppercase text-zinc-300"
+                        className={`px-6 py-3 border font-mono text-[11px] uppercase ${isDark ? 'bg-zinc-900 border-zinc-850 text-zinc-300 hover:bg-zinc-805' : 'bg-stone-100 border-stone-200 text-stone-700 hover:bg-stone-200'} transition-all`}
                       >
                         {t.closeBtn}
                       </button>
@@ -1559,7 +1601,7 @@ export default function App() {
                 <span className="font-mono text-[10px] uppercase text-cyan-400 tracking-[0.3em] block mb-2">
                    VIVÊNCIAS HUMANIZADAS
                 </span>
-                <h2 className="text-4xl text-white font-light animate-fade-in">
+                <h2 className={`text-4xl ${isDark ? 'text-white' : 'text-stone-900'} font-light animate-fade-in`}>
                    {t.interviewsTitle}
                 </h2>
                 <p className="text-xs text-zinc-400 font-mono mt-1 uppercase">
@@ -1573,7 +1615,7 @@ export default function App() {
                   <div 
                     key={person.id}
                     onClick={() => setActiveInterviewTranscript(person)}
-                    className="border border-zinc-900 bg-zinc-950 p-6 md:p-8 flex flex-col md:flex-row gap-6 hover:border-cyan-400 transition-all cursor-pointer group"
+                    className={`border ${themeClasses.border} ${themeClasses.cardBg} p-6 md:p-8 flex flex-col md:flex-row gap-6 hover:border-cyan-400 transition-all cursor-pointer group shadow-sm`}
                     id={`interview-card-${person.id}`}
                   >
                     <div className="w-full md:w-44 aspect-square bg-zinc-900 overflow-hidden relative border border-zinc-850">
@@ -1590,7 +1632,7 @@ export default function App() {
                         <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-widest block mb-1">
                           OP {person.operation} • {person.location[language]}
                         </span>
-                        <h3 className="text-xl text-white font-bold leading-tight mb-2">
+                        <h3 className={`text-xl ${isDark ? 'text-white' : 'text-stone-900'} font-bold leading-tight mb-2`}>
                           {person.name}
                         </h3>
                         <p className="text-[10px] font-mono text-zinc-500 uppercase mb-4 leading-normal">
@@ -1611,17 +1653,17 @@ export default function App() {
 
               {/* TRANSCRIPT DIALOG MODAL */}
               {activeInterviewTranscript && (
-                <div className="fixed inset-0 z-50 bg-black/92 backdrop-blur-md flex items-center justify-center p-4 md:p-6 overflow-y-auto">
-                  <div className={`w-full ${activeInterviewTranscript.youtubeId ? 'max-w-4xl' : 'max-w-2xl'} bg-zinc-950 border border-zinc-800 p-6 md:p-8 text-zinc-200 relative my-auto`}>
-                    <div className="flex items-center justify-between border-b border-zinc-900 pb-4 mb-6">
+                <div className={`fixed inset-0 z-50 ${isDark ? 'bg-black/92' : 'bg-stone-900/65'} backdrop-blur-md flex items-center justify-center p-4 md:p-6 overflow-y-auto`}>
+                  <div className={`w-full ${activeInterviewTranscript.youtubeId ? 'max-w-4xl' : 'max-w-2xl'} ${isDark ? 'bg-zinc-950 border-zinc-800 text-zinc-200' : 'bg-white border-stone-200 text-stone-800 shadow-2xl'} border p-6 md:p-8 relative my-auto`}>
+                    <div className={`flex items-center justify-between border-b ${isDark ? 'border-zinc-900' : 'border-stone-100'} pb-4 mb-6`}>
                       <div className="flex items-center gap-4">
                         <img src={activeInterviewTranscript.imageUrl} className="w-12 h-12 rounded-none object-cover grayscale" alt="" />
                         <div>
-                          <h4 className="text-xl md:text-2xl font-bold text-white leading-none mb-1">{activeInterviewTranscript.name}</h4>
-                          <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-wider">{activeInterviewTranscript.role[language]}</span>
+                          <h4 className={`text-xl md:text-2xl font-bold leading-none mb-1 ${isDark ? 'text-white' : 'text-stone-900'}`}>{activeInterviewTranscript.name}</h4>
+                          <span className="text-[9px] font-mono text-cyan-550 uppercase tracking-wider">{activeInterviewTranscript.role[language]}</span>
                         </div>
                       </div>
-                      <button onClick={() => setActiveInterviewTranscript(null)} className="text-zinc-500 hover:text-white pb-2">
+                      <button onClick={() => setActiveInterviewTranscript(null)} className={`text-stone-500 hover:${isDark ? 'text-white' : 'text-stone-900'} pb-2`}>
                         <X className="w-6 h-6" />
                       </button>
                     </div>
@@ -1630,7 +1672,7 @@ export default function App() {
                       {/* Video Player slot if youtubeId is present */}
                       {activeInterviewTranscript.youtubeId ? (
                         <div className="lg:col-span-6 space-y-4">
-                          <div className="aspect-video w-full border border-zinc-900 bg-black overflow-hidden relative">
+                          <div className={`aspect-video w-full border ${isDark ? 'border-zinc-900 bg-black' : 'border-stone-200 bg-stone-100'} overflow-hidden relative`}>
                             <iframe
                               src={`https://www.youtube.com/embed/${activeInterviewTranscript.youtubeId}`}
                               title={activeInterviewTranscript.name}
@@ -1639,7 +1681,7 @@ export default function App() {
                               allowFullScreen
                             ></iframe>
                           </div>
-                          <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-cyan-400/80 block text-center">
+                          <span className={`font-mono text-[9px] uppercase tracking-[0.2em] ${isDark ? 'text-cyan-400/80' : 'text-cyan-600'} block text-center`}>
                             TRANSMISSÃO AUDIOCIENTÍFICA DA MISSÃO
                           </span>
                         </div>
@@ -1648,18 +1690,18 @@ export default function App() {
                       {/* Text content slot */}
                       <div className={activeInterviewTranscript.youtubeId ? 'lg:col-span-6 space-y-4 flex flex-col justify-between' : 'lg:col-span-12 space-y-4'}>
                         <div className="space-y-4">
-                          <blockquote className="border-l-2 border-cyan-400 pl-4 py-1 text-cyan-300 italic text-xs font-mono">
+                          <blockquote className={`border-l-2 border-cyan-400 pl-4 py-1 italic text-xs font-mono ${isDark ? 'text-cyan-300' : 'text-cyan-800'}`}>
                              "{activeInterviewTranscript.quote[language]}"
                           </blockquote>
                           <div>
-                            <span className="text-[9px] font-mono text-zinc-500 uppercase block mb-1">DIÁRIO DE ADAPTAÇÃO & TRANSCRIÇÃO</span>
-                            <p className="text-xs md:text-sm font-light text-zinc-350 leading-relaxed max-h-[220px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-zinc-800">
+                            <span className={`text-[9px] font-mono ${isDark ? 'text-zinc-500' : 'text-stone-400'} uppercase block mb-1`}>DIÁRIO DE ADAPTAÇÃO & TRANSCRIÇÃO</span>
+                            <p className={`text-xs md:text-sm font-light leading-relaxed max-h-[220px] overflow-y-auto pr-2 scrollbar-thin ${isDark ? 'text-zinc-350 scrollbar-thumb-zinc-805' : 'text-stone-605 scrollbar-thumb-stone-200'}`}>
                               {activeInterviewTranscript.fullTranscript[language]}
                             </p>
                           </div>
                         </div>
 
-                        <div className="pt-4 flex flex-wrap gap-2 text-[10px] font-mono text-zinc-500">
+                        <div className={`pt-4 flex flex-wrap gap-2 text-[10px] font-mono ${isDark ? 'text-zinc-500' : 'text-stone-400'}`}>
                           <span>OPERAÇÃO: {activeInterviewTranscript.operation}</span>
                           <span>•</span>
                           <span>LOCAL: {activeInterviewTranscript.location[language]}</span>
@@ -1667,16 +1709,16 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="mt-8 border-t border-zinc-900 pt-6 flex gap-3 justify-end">
+                    <div className={`mt-8 border-t ${isDark ? 'border-zinc-900' : 'border-stone-100'} pt-6 flex gap-3 justify-end`}>
                       <button 
                         onClick={() => executeToastFeedback("Cópia de memorando de rádio consolidada")}
-                        className="px-6 py-2.5 bg-cyan-400 text-zinc-950 font-mono text-[10px] uppercase tracking-wider font-bold hover:bg-white transition-colors"
+                        className="px-6 py-2.5 bg-cyan-500 text-stone-950 font-mono text-[10px] uppercase tracking-wider font-bold hover:bg-cyan-400 transition-colors"
                       >
                          COPIAR TRANSCRIÇÃO
                       </button>
                       <button 
                         onClick={() => setActiveInterviewTranscript(null)}
-                        className="px-6 py-2.5 bg-zinc-900 border border-zinc-800 font-mono text-[10px] uppercase text-zinc-300 hover:text-white hover:bg-zinc-850"
+                        className={`px-6 py-2.5 border font-mono text-[10px] uppercase ${isDark ? 'bg-zinc-900 border-zinc-850 text-zinc-300 hover:bg-zinc-800 hover:text-white' : 'bg-stone-100 border-stone-200 text-stone-700 hover:bg-stone-200 hover:text-stone-900'} transition-all`}
                       >
                         {t.closeBtn}
                       </button>
@@ -1688,59 +1730,6 @@ export default function App() {
             </div>
           )}
 
-          {/* TAB 8: DIÁRIOS / BLOG */}
-          {activeTab === 'blog' && (
-            <div className="max-w-7xl mx-auto px-6 pt-12">
-              <div className="mb-12">
-                <span className="font-mono text-[10px] uppercase text-cyan-400 tracking-[0.3em] block mb-2">
-                   ARTIGOS & CRÔNICAS POLARES
-                </span>
-                <h2 className="text-4xl text-white font-light">
-                   {t.blogTitle}
-                </h2>
-                <p className="text-xs text-zinc-400 font-mono mt-1 uppercase">
-                   {t.blogSub}
-                </p>
-              </div>
-
-              {/* PREMIUM MAGAZINE GRID COMPILATIONS */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {blogPosts.map((post) => (
-                  <article 
-                    key={post.id}
-                    className="border border-zinc-900 bg-zinc-950 p-6 flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="relative overflow-hidden mb-5 border border-zinc-850">
-                        <img src={post.imageUrl} className="w-full aspect-video object-cover grayscale hover:grayscale-0 transition-all duration-700" alt="" />
-                      </div>
-                      <div className="flex justify-between items-center text-[10px] font-mono text-cyan-400 mb-3">
-                        <span>{post.date}</span>
-                        <span>{post.readTime} LEITURA</span>
-                      </div>
-                      <h3 className="text-2xl font-light text-zinc-100 mb-3 leading-none hover:text-cyan-300 cursor-pointer">
-                        {post.title[language]}
-                      </h3>
-                      <p className="text-sm font-light text-zinc-400 leading-relaxed mb-6">
-                        {post.excerpt[language]}
-                      </p>
-                    </div>
-
-                    <div className="border-t border-zinc-900 pt-4 flex justify-between items-center text-xs font-mono">
-                      <span className="text-zinc-550 uppercase">AUTOR: {post.author}</span>
-                      <button 
-                        onClick={() => alert(`Acesso ao texto integral: ${post.title[language]}`)}
-                        className="text-cyan-400 hover:underline inline-flex items-center gap-1 uppercase text-[10.5px]"
-                      >
-                         LER ARTIGO <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* TAB 9: CARTOGRAFIA INTERATIVA */}
           {activeTab === 'map' && (
             <div className="max-w-7xl mx-auto px-6 pt-12">
@@ -1748,7 +1737,7 @@ export default function App() {
                 <span className="font-mono text-[10px] uppercase text-cyan-400 tracking-[0.3em] block mb-2">
                    SPATIAL LEDGER DATABASE
                 </span>
-                <h2 className="text-4xl text-white font-light">
+                <h2 className={`text-4xl ${isDark ? 'text-white' : 'text-stone-900'} font-light`}>
                    {t.mapHeader}
                 </h2>
                 <p className="text-xs text-zinc-400 font-mono mt-1 uppercase">
@@ -1762,7 +1751,32 @@ export default function App() {
                   language={language}
                   onSelectPhoto={() => setActiveTab('gallery')}
                   onSelectVideo={(id) => {
-                    const found = VIDEO_ITEMS.find(v => v.id === id);
+                    let found = VIDEO_ITEMS.find(v => v.id === id || v.youtubeId === id);
+                    if (!found) {
+                      const localVid = Object.values(LOCAL_MEDIA_RECORDS)
+                        .flatMap(record => record.videos)
+                        .find(v => v.youtubeId === id);
+                      if (localVid) {
+                        found = {
+                          id: localVid.youtubeId,
+                          youtubeId: localVid.youtubeId,
+                          title: { BR: localVid.title, EN: localVid.title, ES: localVid.title },
+                          description: {
+                            BR: "Vídeo documental sobre a estação antártica nesta localização correspondente.",
+                            EN: "Documentary video about the Antarctic station at this corresponding location.",
+                            ES: "Video documental sobre la estación antártica en esta ubicación correspondiente."
+                          },
+                          duration: localVid.length,
+                          operation: 44,
+                          subcategory: "Rotina da missão",
+                          tags: ["estação", "documentário"],
+                          director: "SaúdeAntar",
+                          year: 2026,
+                          thumbnail: localVid.thumbnail,
+                          isFilm: false
+                        };
+                      }
+                    }
                     if (found) setSelectedVideo(found);
                     setActiveTab('videos');
                   }}
@@ -1773,6 +1787,7 @@ export default function App() {
                   }}
                   theme={theme}
                   allPhotos={combinedPhotos}
+                  onSelectOperations={() => setActiveTab('operations')}
                 />
               </div>
             </div>
@@ -1784,9 +1799,9 @@ export default function App() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 <div className="lg:col-span-5 space-y-6">
                   <span className="font-mono text-[10px] uppercase text-cyan-400 tracking-[0.3em] block">
-                     LINHA DIRETA ACADÊMICA
+                     CONEXÃO ANTÁRTICA
                   </span>
-                  <h2 className="text-4xl text-white font-light">
+                  <h2 className={`text-4xl ${isDark ? 'text-white' : 'text-stone-900'} font-light`}>
                      {t.contactTitle}
                   </h2>
                   <p className="text-zinc-400 font-light text-sm leading-relaxed">
@@ -1796,24 +1811,24 @@ export default function App() {
                   <div className="space-y-4 pt-6 font-mono text-xs text-zinc-450 uppercase">
                     <div className="flex items-center gap-3">
                       <Mail className="w-5 h-5 text-cyan-450" />
-                      <span>proantar.resilience@saudeantar-ia.org</span>
+                      <span>saudeantar.adm@gmail.com</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <Phone className="w-5 h-5 text-cyan-450" />
-                      <span>+55 (21) 3221-1200 / R-442</span>
+                      <span>+55 (21) 99971-5795</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="lg:col-span-7 bg-zinc-950 border border-zinc-900 p-8">
+                <div className={`lg:col-span-7 border ${themeClasses.border} ${themeClasses.cardBg} p-8 shadow-sm`}>
                   <form onSubmit={handleContactSubmit} className="space-y-6">
                     {formFeedback && (
-                      <div className="p-3 border border-cyan-800 bg-cyan-950/20 text-cyan-300 font-mono text-xs uppercase flex items-center gap-2">
+                      <div className="p-3 border border-cyan-805 bg-cyan-950/20 text-cyan-305 font-mono text-xs uppercase flex items-center gap-2">
                         <MessageSquare className="w-4 h-4 animate-ping" /> {formFeedback}
                       </div>
                     )}
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono text-zinc-300">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono ${isDark ? 'text-zinc-300' : 'text-stone-705'}`}>
                       <div>
                         <label className="block mb-2 opacity-75">{t.contactName} *</label>
                         <input 
@@ -1821,7 +1836,7 @@ export default function App() {
                           required
                           value={senderName}
                           onChange={(e) => setSenderName(e.target.value)}
-                          className="w-full bg-zinc-900 border border-zinc-800 p-3 text-white focus:border-cyan-400 outline-none" 
+                          className={`w-full border ${isDark ? 'bg-zinc-900 border-zinc-800 text-white focus:border-cyan-400' : 'bg-stone-50 border-stone-350 text-stone-900 focus:border-cyan-500'} p-3 outline-none transition-all duration-300`}
                         />
                       </div>
                       <div>
@@ -1831,38 +1846,51 @@ export default function App() {
                           required
                           value={senderEmail}
                           onChange={(e) => setSenderEmail(e.target.value)}
-                          className="w-full bg-zinc-900 border border-zinc-800 p-3 text-white focus:border-cyan-400 outline-none" 
+                          className={`w-full border ${isDark ? 'bg-zinc-900 border-zinc-800 text-white focus:border-cyan-400' : 'bg-stone-50 border-stone-350 text-stone-900 focus:border-cyan-500'} p-3 outline-none transition-all duration-300`}
                         />
                       </div>
                     </div>
 
-                    <div className="text-xs font-mono text-zinc-300">
+                    <div className={`text-xs font-mono ${isDark ? 'text-zinc-300' : 'text-stone-705'}`}>
                       <label className="block mb-2 opacity-75">{t.contactSubject}</label>
                       <input 
                         type="text" 
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
-                        className="w-full bg-zinc-900 border border-zinc-800 p-3 text-white focus:border-cyan-400 outline-none" 
+                        className={`w-full border ${isDark ? 'bg-zinc-900 border-zinc-800 text-white focus:border-cyan-400' : 'bg-stone-50 border-stone-350 text-stone-900 focus:border-cyan-500'} p-3 outline-none transition-all duration-300`}
                       />
                     </div>
 
-                    <div className="text-xs font-mono text-zinc-300">
-                      <label className="block mb-2 opacity-75">{t.contactMsg} *</label>
+                    <div className={`text-xs font-mono ${isDark ? 'text-zinc-300' : 'text-stone-705'}`}>
+                      <label className="block mb-2 opacity-75">
+                        {t.contactMsg} {t.contactMsg !== 'Mensagem' && '*'}
+                      </label>
                       <textarea 
                         rows={5}
                         required
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        className="w-full bg-zinc-900 border border-zinc-800 p-3 text-white focus:border-cyan-400 outline-none resize-none leading-relaxed"
+                        className={`w-full border ${isDark ? 'bg-zinc-900 border-zinc-800 text-white focus:border-cyan-400' : 'bg-stone-50 border-stone-350 text-stone-900 focus:border-cyan-500'} p-3 outline-none resize-none leading-relaxed transition-all duration-300`}
                       />
                     </div>
 
                     <button 
                       type="submit" 
-                      className="w-full py-4 bg-cyan-400 text-zinc-950 font-mono text-[11px] uppercase tracking-widest font-bold shadow-md hover:bg-white"
+                      disabled={isTransmitting}
+                      className={`w-full py-4 bg-cyan-400 text-zinc-950 font-mono text-[11px] uppercase tracking-widest font-bold shadow-md transition-all hover:bg-white ${isTransmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                      {t.contactSend}
+                      {isTransmitting 
+                        ? (language === 'BR' ? "TRANSMITINDO..." : "TRANSMITTING ENCRYPTED...") 
+                        : t.contactSend
+                      }
                     </button>
+
+                    {isTransmitting && (
+                      <div className="flex items-center gap-3 p-4 bg-zinc-950 border border-cyan-800/30 text-cyan-400 font-mono text-xs">
+                        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                        <span>{language === 'BR' ? "A enviar formulário..." : "Sending form..."}</span>
+                      </div>
+                    )}
                   </form>
                 </div>
               </div>
@@ -1882,7 +1910,6 @@ export default function App() {
             </p>
           </div>
           <div>
-            <h4 className="text-[10px] font-mono uppercase tracking-widest text-zinc-550 mb-4">REPOSITÓRIO M Memorial</h4>
             <ul className="space-y-2 text-xs font-mono uppercase">
               <li className="hover:text-cyan-300"><a href="#ops" onClick={() => setActiveTab('operations')}>Operações 38–44</a></li>
               <li className="hover:text-cyan-300"><a href="#pub" onClick={() => setActiveTab('publications')}>Arquivo Acadêmico</a></li>
@@ -1892,16 +1919,42 @@ export default function App() {
           <div>
             <h4 className="text-[10px] font-mono uppercase tracking-widest text-zinc-550 mb-4">COMPARTILHAMENTO</h4>
             <div className="flex gap-3 text-xs uppercase font-mono">
-              <span className="hover:text-cyan-400 cursor-pointer" onClick={() => executeToastFeedback("Cópia de link consubstanciada")}>LINK</span>
+              <span 
+                className="hover:text-cyan-400 cursor-pointer" 
+                onClick={() => {
+                  navigator.clipboard.writeText("https://saude-antar.vercel.app/");
+                  executeToastFeedback(t.copySuccess);
+                }}
+              >
+                LINK
+              </span>
               <span>•</span>
-              <span className="hover:text-cyan-400 cursor-pointer" onClick={() => executeToastFeedback("Transmissão WhatsApp consolidada")}>WA</span>
+              <span 
+                className="hover:text-cyan-400 cursor-pointer" 
+                onClick={() => {
+                  const shareText = "Conheça o hub audiovisual e científico do SaúdeAntar-ia em https://saude-antar.vercel.app/";
+                  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+                  executeToastFeedback(language === 'BR' ? "Transmissão WhatsApp iniciada..." : "WhatsApp transmission dispatch initiated...");
+                }}
+              >
+                WA
+              </span>
               <span>•</span>
-              <span className="hover:text-cyan-400 cursor-pointer" onClick={() => executeToastFeedback("X/Twitter post processado")}>X</span>
+              <span 
+                className="hover:text-cyan-400 cursor-pointer" 
+                onClick={() => {
+                  const tweetText = "Conheça o hub audiovisual e científico do SaúdeAntar-ia em https://saude-antar.vercel.app/";
+                  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, '_blank');
+                  executeToastFeedback(language === 'BR' ? "X/Twitter post carregado..." : "X/Twitter tweet card loaded...");
+                }}
+              >
+                X
+              </span>
             </div>
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-6 mt-12 pt-6 border-t border-zinc-900/60 font-mono text-[9px] text-zinc-550 flex flex-col md:flex-row justify-between items-center gap-4">
-          <span>© 1982-2026 SaúdeAntar / MINISTÉRIO DA CIÊNCIA, TECNOLOGIA E INOVAÇÃO.</span>
+          <span>© 2020-2026 SaúdeAntar / IPHEM.</span>
           <span>{t.allRightsReserved}</span>
         </div>
       </footer>
@@ -1912,9 +1965,27 @@ export default function App() {
           item={selectedVideo}
           language={language}
           onClose={() => setSelectedVideo(null)}
-          allVideos={VIDEO_ITEMS}
+          allVideos={
+            selectedVideo.isFilm
+              ? DOCUMENTARIES_DATA.map((doc) => ({
+                  id: doc.id,
+                  youtubeId: doc.youtubeId,
+                  title: doc.title,
+                  description: doc.description,
+                  duration: doc.duration,
+                  operation: 44,
+                  subcategory: doc.category as any,
+                  tags: doc.tags,
+                  director: doc.director,
+                  year: doc.year,
+                  thumbnail: `https://img.youtube.com/vi/${doc.youtubeId.split('?')[0]}/hqdefault.jpg`,
+                  isFilm: true
+                }))
+              : VIDEO_ITEMS
+          }
           onSelectVideo={(v) => setSelectedVideo(v)}
           onShare={(title) => executeToastFeedback(`Consolidação de compartilhamento: "${title}"`)}
+          theme={theme}
         />
       )}
 

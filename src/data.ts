@@ -391,73 +391,49 @@ export const PUBLICATION_ITEMS: PublicationItem[] = [
   {
     id: 'pub1',
     title: {
-      BR: "Clínica do Confinamento: Resiliência Emocional na Estação Comandante Ferraz",
-      EN: "Confinement Clinics: Emotional Resilience at the Comandante Ferraz Antarctic Station",
-      ES: "Clínica del Confinamiento: Resiliencia Emocional en la Estación Comandante Ferraz"
+      BR: "Latência e Eficiência do Sono de Expedicionários Brasileiros em Diferentes Microambientes Antárticos (Projeto SAÚDEANTAR-IA / PROANTAR)",
+      EN: "Sleep Latency and Efficiency of Brazilian Expeditioners in Different Antarctic Microenvironments (SAÚDEANTAR-IA / PROANTAR Project)",
+      ES: "Latencia y Eficiencia del Sueño de Expedicionarios Brasileños en Diferentes Microambientes Antárticos (Proyecto SAÚDEANTAR-IA / PROANTAR)"
     },
     abstract: {
-      BR: "Este ensaio avalia longitudinalmente o bem-estar mental e as variações hormonais em pesquisadores no decorrer do inverno antártico de 360 dias. Foram identificados mecanismos maduros de coping relacionados ao humor afetivo e suporte interpessoal estruturado.",
-      EN: "A longitudinal study evaluating mental symptoms and hormonal shifts in researchers throughout the 360-day Antarctic wintering. Findings indicate advanced coping strategies and small group buffering systems are essential traits.",
-      ES: "Estudio clínico longitudinal sobre los estados psicoafectivos y cortisol durante el invierno polar. Se documentan mecanismos de afrontamiento y amortiguación emocional para solventar el Síndrome de Winterover."
+      BR: "Estudo observacional transversal com 98 polissonografias de expedicionários brasileiros realizadas durante a Operantar 2026, comparando latência e eficiência do sono em navios, acampamentos, Estação Antártica Comandante Ferraz e residência. Os acampamentos apresentaram maior latência para início do sono, enquanto a melhor eficiência foi observada na estação antártica. Os resultados demonstram que os microambientes antárticos influenciam significativamente parâmetros objetivos do sono.",
+      EN: "Cross-sectional observational study with 98 polysomnographies of Brazilian expeditioners performed during Operantar 2026, comparing sleep latency and efficiency in ships, camps, Comandante Ferraz Antarctic Station, and residence. Camps presented higher sleep onset latency, while the best efficiency was observed at the Antarctic station. Results demonstrate that Antarctic microenvironments significantly influence objective sleep parameters.",
+      ES: "Estudio observacional transversal con 98 polisomnografías de expedicionarios brasileños realizadas durante Operantar 2026, comparando latencia y eficiencia del sueño en buques, campamentos, Estación Antártica Comandante Ferraz y residencia. Los campamentos presentaron mayor latencia para el inicio del sueño, mientras que la mejor eficiencia se observó en la estación antártica. Los resultados demuestran que los microambientes antárticos influyen significativamente en los parámetros objetivos del sueño."
     },
-    authors: ["Silva, A. C.", "Duarte, R. F.", "Mendes, C. B."],
-    journal: "Clinical Polar Psychology",
-    year: 2024,
-    doi: "10.1016/j.actaastro.2024.12.001",
-    tags: ["saúde mental", "coping", "EACF", "psicologia", "medicina polar"],
-    pdfUrl: "#",
+    authors: ["Santos, J. M.", "Lima, Y. T.", "Werdan, J. P.", "Werner Junior, J."],
+    journal: "ANAIS DA FACULDADE DE MEDICINA UFF",
+    year: 2026,
+    doi: "Em processo de atribuição.",
+    tags: ["medicina do sono", "psicologia", "ICE", "saúde polar", "PROANTAR", "sono"],
+    pdfUrl: "https://drive.google.com/file/d/1dCWrHw2pBdr1krgLja76vN2V7nZQXtkD/view?usp=sharing",
     category: {
-      BR: "Psicologia em Ambientes ICE",
-      EN: "ICE Environments Psychology",
-      ES: "Psicología en Entornos ICE"
+      BR: "Medicina do Sono • Psicologia em Ambientes ICE • Saúde Polar • PROANTAR",
+      EN: "Sleep Medicine • ICE Environments Psychology • Polar Health • PROANTAR",
+      ES: "Medicina del Sueño • Psicología en Entornos ICE • Salud Polar • PROANTAR"
     }
   },
   {
     id: 'pub2',
     title: {
-      BR: "Comportamento Humano em Missões Criofílicas: Estratégias Adaptativas no Drake",
-      EN: "Human Behaviour Under Cryophilic Shifts: Adaptative Strategies on the Ocean Crossing",
-      ES: "Conducta Humana en Misiones Criogénicas: Estilos Tácticos en el Drake"
+      BR: "Estratégias de Coping em Ambientes ICE: Percepção de Participantes de Missões Antárticas (Projeto SAÚDEANTAR-IA / PROANTAR)",
+      EN: "Coping Strategies in ICE Environments: Perception of Antarctic Mission Participants (SAÚDEANTAR-IA / PROANTAR Project)",
+      ES: "Estrategias de Coping en Entornos ICE: Percepción de Participantes de Misiones Antárticas (Proyecto SAÚDEANTAR-IA / PROANTAR)"
     },
     abstract: {
-      BR: "Investigação com militares do SaúdeAntar expostos a estressores agudos em ambiente marítimo. A regulação psicofisiológica correlaciona estabilidade de ritmo circadiano e rotinas de atividades físicas controladas no convés metálico.",
-      EN: "An evaluation of naval soldiers facing severe marine stress factors during raw Antarctica passage. Successful cardiac regulation relates to structured sleep intervals and deck task rotations.",
-      ES: "Análisis técnico de soldados expuestos a sobrecargas vestibulares y climáticas severas. El ajuste funcional se liga a la modulación del ritmo cardíaco y sueño pautado."
+      BR: "Estudo descritivo-analítico com 182 participantes de missões antárticas (2022–2025) para identificar as estratégias de coping mais valorizadas em ambientes isolados, confinados e extremos (ICE). A resolução direta de problemas foi a estratégia mais bem ranqueada, seguida por atividade física e suporte social. Diferenças foram observadas conforme o perfil funcional e o ambiente da missão, indicando a necessidade de estratégias de preparação psicológica personalizadas.",
+      EN: "Descriptive-analytical study with 182 Antarctic mission participants (2022–2025) to identify the most valued coping strategies in isolated, confined, and extreme (ICE) environments. Direct problem-solving was the highest-ranked strategy, followed by physical activity and social support. Differences were observed according to functional profile and mission environment, indicating the need for personalized psychological preparation strategies.",
+      ES: "Estudio descriptivo-analítico con 182 participantes de misiones antárticas (2022–2025) para identificar las estrategias de coping más valoradas en entornos aislados, confinados y extremos (ICE). La resolución directa de problemas fue la estrategia mejor posicionada, seguida por la actividad física y el soporte social. Se observaron diferencias según el perfil funcional y el entorno de la misión, lo que indica la necesidad de estrategias de preparación psicológica personalizadas."
     },
-    authors: ["Almeida, J. P.", "Torres, M. G.", "Ramos, A. R."],
-    journal: "Military Extreme Medicine",
-    year: 2023,
-    doi: "10.1111/j.extreme.2023.01.045",
-    tags: ["navio", "logística", "coping", "adaptação humana", "medicina polar"],
-    pdfUrl: "#",
+    authors: ["Bizoni, A. P.", "Santos, J. M.", "Guimarães, C. R. A.", "Werdan, J. P.", "Werner Junior, J."],
+    journal: "ANAIS DA FACULDADE DE MEDICINA UFF",
+    year: 2026,
+    doi: "Em processo de atribuição.",
+    tags: ["coping", "psicologia", "ICE", "saúde mental", "medicina polar", "PROANTAR"],
+    pdfUrl: "https://drive.google.com/file/d/1g7xg4IkwA7m9n_OiIozYi7jC1c3SMIQ0/view?usp=sharing",
     category: {
-      BR: "Fisiologia da Sobrevivência",
-      EN: "Survival Physiology",
-      ES: "Fisiología de la Supervivencia"
-    }
-  },
-  {
-    id: 'pub3',
-    title: {
-      BR: "Termorregulação e Saúde Mental em Acampamentos Isolados na Ilha Livingston",
-      EN: "Thermoregulation and Mental Status in Deep Wilderness Camps on Livingston Island",
-      ES: "Termorregulación y Psicología Clínica en Campamentos Extremos en Livingston"
-    },
-    abstract: {
-      BR: "Mapeamento das interações psicOSSociais e estresse térmico em equipes geológicas isoladas em barracas volantes. Recomenda-se treinos de mediação cognitiva prévios ao embarque para blindar dinâmicas de discussões territoriais.",
-      EN: "Mapping of community parameters and thermal discomfort ratios in geology crews utilizing temporary dome covers. Pre-departure behavioral cognitive preparation helps avoid high friction disputes under confined cold states.",
-      ES: "Estudio de las interacciones grupales y confort calórico en tiendas de campaña portátiles. La preparación cognitiva previa al aislamiento mitiga querellas territoriales."
-    },
-    authors: ["Carvalho, E. S.", "Souza, D. S."],
-    journal: "Journal of Polar Medicine and Survival Science",
-    year: 2025,
-    doi: "10.1002/polmed.2025.10928",
-    tags: ["acampamento", "isolamento", "expedição", "saúde mental"],
-    pdfUrl: "#",
-    category: {
-      BR: "Medicina de Expedições",
-      EN: "Expedition Medicine",
-      ES: "Medicina de Expediciones"
+      BR: "Psicologia em Ambientes ICE • Saúde Mental • Coping • Medicina Polar • PROANTAR",
+      EN: "ICE Environments Psychology • Mental Health • Coping • Polar Medicine • PROANTAR",
+      ES: "Psicología en Entornos ICE • Salud Mental • Coping • Medicina Polar • PROANTAR"
     }
   }
 ];

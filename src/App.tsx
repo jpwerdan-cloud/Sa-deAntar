@@ -1522,15 +1522,27 @@ export default function App() {
                       <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-tighter">
                          DOI: {pub.doi}
                       </span>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          executeToastFeedback("Documento Clínico PDF enfileirado para download");
-                        }}
-                        className="px-4 py-2 bg-zinc-900 hover:bg-cyan-400 hover:text-black border border-zinc-805 text-[10px] font-mono uppercase tracking-widest text-zinc-300 flex items-center gap-2 ml-auto"
-                      >
-                        <Download className="w-3.5 h-3.5" /> PDF
-                      </button>
+                      {pub.pdfUrl && pub.pdfUrl !== '#' ? (
+                        <a 
+                          href={pub.pdfUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="px-4 py-2 bg-zinc-900 hover:bg-cyan-400 hover:text-black border border-zinc-805 text-[10px] font-mono uppercase tracking-widest text-zinc-300 flex items-center gap-2 ml-auto"
+                        >
+                          <Download className="w-3.5 h-3.5" /> PDF
+                        </a>
+                      ) : (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            executeToastFeedback("Documento Clínico PDF enfileirado para download");
+                          }}
+                          className="px-4 py-2 bg-zinc-900 hover:bg-cyan-400 hover:text-black border border-zinc-805 text-[10px] font-mono uppercase tracking-widest text-zinc-300 flex items-center gap-2 ml-auto"
+                        >
+                          <Download className="w-3.5 h-3.5" /> PDF
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1574,12 +1586,23 @@ export default function App() {
                     </div>
 
                     <div className="mt-8 flex gap-3">
-                      <button 
-                        onClick={() => executeToastFeedback("Extração de PDF consolidada")}
-                        className="px-6 py-3 bg-cyan-500 text-stone-950 font-mono text-[11px] uppercase tracking-wider font-bold hover:bg-cyan-400 transition-colors"
-                      >
-                        {t.downloadPdf}
-                      </button>
+                      {activeAcademicDetail.pdfUrl && activeAcademicDetail.pdfUrl !== '#' ? (
+                        <a 
+                          href={activeAcademicDetail.pdfUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-6 py-3 bg-cyan-500 text-stone-950 font-mono text-[11px] uppercase tracking-wider font-bold hover:bg-cyan-400 transition-colors inline-flex items-center gap-2"
+                        >
+                          <Download className="w-4 h-4" /> {t.downloadPdf}
+                        </a>
+                      ) : (
+                        <button 
+                          onClick={() => executeToastFeedback("Extração de PDF consolidada")}
+                          className="px-6 py-3 bg-cyan-500 text-stone-950 font-mono text-[11px] uppercase tracking-wider font-bold hover:bg-cyan-400 transition-colors"
+                        >
+                          {t.downloadPdf}
+                        </button>
+                      )}
                       <button 
                         onClick={() => setActiveAcademicDetail(null)}
                         className={`px-6 py-3 border font-mono text-[11px] uppercase ${isDark ? 'bg-zinc-900 border-zinc-850 text-zinc-300 hover:bg-zinc-805' : 'bg-stone-100 border-stone-200 text-stone-700 hover:bg-stone-200'} transition-all`}

@@ -441,7 +441,7 @@ export const PUBLICATION_ITEMS: PublicationItem[] = [
 export const INTERVIEW_ITEMS: InterviewItem[] = [
   {
     id: 'int1',
-    name: "Dra. Amanda Silva",
+    name: "EM BREVE",
     role: {
       BR: "Neuropsicóloga e Pesquisadora de Ambientes ICE",
       EN: "Neuropsychologist and ICE Environments Researcher",
@@ -470,11 +470,11 @@ export const INTERVIEW_ITEMS: InterviewItem[] = [
   },
   {
     id: 'int2',
-    name: "Comte. Roberto Duarte",
+    name: "Comte. EM BREVE",
     role: {
-      BR: "Coordenador Logístico e Oficial Naval do Drake",
-      EN: "Logistical Supervisor and Drake Naval Commander",
-      ES: "Coordinador Logístico y Comandante Naval del Drake"
+      BR: "-",
+      EN: "-",
+      ES: "-"
     },
     quote: {
       BR: "Na Antártica, a logística é a espinha dorsal que impede a tragédia física; a disciplina de equipe, a âncora que previne o pânico psicológico.",
@@ -498,122 +498,7 @@ export const INTERVIEW_ITEMS: InterviewItem[] = [
     }
   },
   {
-    id: 'int3',
-    name: "João Paulo Werdan",
-    role: {
-      BR: "Pesquisador de Psicologia Polar e Biopsicossocial (UFRRJ)",
-      EN: "Researcher in Polar & Biopsychosocial Psychology (UFRRJ)",
-      ES: "Investigador de Psicología Polar y Biopsicosocial (UFRRJ)"
-    },
-    quote: {
-      BR: "O verdadeiro desafio antártico não está no fustigar das neves, mas no gerenciar cooperativo dos afetos humanos e da solidão regida pelo silêncio.",
-      EN: "The true Antarctic challenge is not the blasting of the snow, but the cooperative management of human affect and silence-governed solitude.",
-      ES: "El auténtico reto antártico no reside en el embate de las nieves, sino en la gestión cooperativa de los afectos humanos y la soledad regida por el silencio."
-    },
-    fullTranscript: {
-      BR: "Em nossa investigação longitudinal no SaúdeAntar durante a Operação 44, buscamos avaliar como os fatores psicossociais e as redes de apoio mitigam as sobrecargas mentais decorrentes do confinamento extremo. A introdução de canais modernos de comunicação aproximou as famílias, mas a estrutura elementar do suporte interno coletivo continua sendo o principal fator de proteção para estabilidade do grupo.",
-      EN: "During our longitudinal work for SaúdeAntar in OP 44, we evaluated how psychosocial buffers and support networks protect participants. While digital technologies bring families closer, standard, face-to-face peer dynamics at the base remain the single most relevant protective barrier for group integrity.",
-      ES: "Durante nuestra investigación longitudinal en SaúdeAntar en la Op 44, evaluamos cómo los amortiguadores psicosociales protegen a los exploradores. Aunque los canales digitales estrechen lazos, el soporte horizontal presencial sigue siendo la barrera de resiliencia más preponderante."
-    },
-    imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600",
-    operation: 44,
-    duration: "14:22",
-    youtubeId: "L2HRu84c9g8",
-    tags: ["saúde mental", "SaúdeAntar", "entrevista", "EACF"],
-    location: {
-      BR: "EACF - Laboratório Mental",
-      EN: "EACF - Mental Health Laboratory",
-      ES: "EACF - Cabina de Medición"
-    }
-  },
-  {
-    id: 'int4',
-    name: "Dra. Eliane G. da Silva",
-    role: {
-      BR: "Pesquisadora de Saúde Pública e Cronobiologia Polar",
-      EN: "Public Health & Polar Chronobiology Researcher",
-      ES: "Investigadora en Salud Pública y Cronobiología Polar"
-    },
-    quote: {
-      BR: "Regar a mente sob a escuridão estacional exige um olhar cuidadoso sobre o bem-estar comunitário e os ritmos do sono.",
-      EN: "Watering the mind under seasonal darkness demands a careful eye on collective well-being and sleep hygiene.",
-      ES: "Cuidar la psique bajo la penumbra estacional exige una mirada escrupulosa sobre el bienestar colectivo y los ritmos de sueño."
-    },
-    fullTranscript: {
-      BR: "A conectividade moderna alterou como as pessoas gerenciam a distância. No entanto, ela também trouxe novos desafios para o sono e para o distanciamento reparador. Debater as rotinas na EACF esclarece que micro-hábitos e espaços coletivos compartilhados diminuem drasticamente os índices corporais de estresse agudo.",
-      EN: "Recent connection speeds changed how researchers manage physical distance, but it also introduced novel tests for mental decompression and circadian alignment. Standardized schedules and communal rooms help maintain group health parameters in check.",
-      ES: "La conectividad instantánea redefine la relación con la distancia. No obstante, instaura nuevos retos de sincronía circadiana y aislamiento reparador. Confeccionar rutinas estructuradas y ocio compartido desactiva el cortisol."
-    },
-    imageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=600",
-    operation: 44,
-    duration: "45:10",
-    youtubeId: "_aIdn3IhijU",
-    tags: ["sono", "conectividade", "entrevista", "EACF"],
-    location: {
-      BR: "EACF - Módulo de Conveniência",
-      EN: "EACF - Leisure Module",
-      ES: "EACF - Módulo de Descanso"
-    }
-  },
-  {
-    id: 'int5',
-    name: "Dra. Patricia Oliveira",
-    role: {
-      BR: "Psicóloga de Campo e Pesquisadora Independente",
-      EN: "Field Psychologist and Independent Polar Researcher",
-      ES: "Psicóloga de Campo e Investigadora Independiente"
-    },
-    quote: {
-      BR: "Nos acampamentos isolados, a solidariedade e a coesão mútua deixam de ser conceitos teóricos e tornam-se ferramentas puras de sobrevivência.",
-      EN: "In isolated wilderness camps, team cohesion ceases to be a theory and becomes a literal tool of survival.",
-      ES: "En los campamentos aislados, la cohesión mutua deja de ser teoría y deviene en una herramienta pura de supervivencia."
-    },
-    fullTranscript: {
-      BR: "Viver em barracas rústicas por semanas longe da estação obriga o desenvolvimento de cooperação sem precedentes. Analisamos detalhadamente como a tolerância a pequenos atritos interpares determina as chances de sucesso de uma expedição científica móvel na Antártica.",
-      EN: "Living in light shelters for months away from Comandante Ferraz forces outstanding levels of team focus. Our study outlines how daily, minor friction tolerance predicts scientific campaign outcomes under polar weather.",
-      ES: "Habitar refugios temporales bajo tormentas continuas adiestra la tolerancia humana. Evaluamos cómo el microclima grupal y la amortiguación de pequeños ruidos de fricción blindan la vitalidad del grupo."
-    },
-    imageUrl: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=600",
-    operation: 44,
-    duration: "38:40",
-    youtubeId: "LqN1XSPcELI",
-    tags: ["acampamento", "coesão", "entrevista", "expedição"],
-    location: {
-      BR: "Península Byers - Acampamento Móvel",
-      EN: "Byers Peninsula - Expedition Camp",
-      ES: "Península Byers - Campamento Móvil"
-    }
-  },
-  {
-    id: 'int6',
-    name: "Dr. Lucas Carvalho",
-    role: {
-      BR: "Fisiologista e Neurocientista do Sono",
-      EN: "Physiologist and Sleep Neuroscientist",
-      ES: "Fisiólogo y Neurocientífico del Sueño"
-    },
-    quote: {
-      BR: "A desregulação do ritmo circadiano devido à ausência de fuso horário natural é um dos maiores gatilhos para fadiga cognitiva polar.",
-      EN: "Circadian mismatch due to photoperiod absence represents a heavy driver for cognitive and operational fatigue.",
-      ES: "La desincronización de ritmos circadianos por ausencia de fotoperíodo natural es el mayor gatilho de fatiga cognitiva."
-    },
-    fullTranscript: {
-      BR: "Nossa meta foi documentar as respostas hormonais de melatonina e cortisol salivar em marinheiros de apoio durante as manobras logísticas de alta tensão. Os dados mostram que a estabilidade fisiológica é profundamente resguardada quando o bando se percebe emocionalmente acolhido.",
-      EN: "We mapped sleep patterns and cortisol biomarkers in service personnel under stressful maritime transfers. The data verifies that physical fatigue indicators remain low when overall group emotional validation is high.",
-      ES: "Mapeamos el sueño y biomarcadores salivares de marinos bajo transferencia de carga extrema. La fatiga física decrece significativamente cuando la sensación de seguridad psicológica es plena."
-    },
-    imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600",
-    operation: 42,
-    duration: "41:05",
-    youtubeId: "pfc1bWnzatQ",
-    tags: ["sono", "estresse", "entrevista", "fisiologia"],
-    location: {
-      BR: "Navio Oceanográfico Maximiano",
-      EN: "Maximiano Ocean Vessel",
-      ES: "Navio Oceanográfico Maximiano"
-    }
-  }
-];
+   
 
 export const BLOG_ITEMS: BlogItem[] = [
   {
